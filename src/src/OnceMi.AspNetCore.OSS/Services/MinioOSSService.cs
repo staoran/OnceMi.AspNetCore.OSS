@@ -29,15 +29,15 @@ namespace OnceMi.AspNetCore.OSS
         public MinioOSSService(ICacheProvider cache, OSSOptions options)
             : base(cache, options)
         {
-            IMinioClient builder = new MinioClient()
+            IMinioClient clientBuilder = new MinioClient()
                 .WithEndpoint(options.Endpoint)
                 .WithRegion(options.Region)
                 .WithCredentials(options.AccessKey, options.SecretKey);
             if (options.IsEnableHttps)
             {
-                builder = builder.WithSSL();
+                clientBuilder = clientBuilder.WithSSL();
             }
-            this._client = builder.Build();
+            this._client = clientBuilder.Build();
         }
 
         #region Minio自有方法
