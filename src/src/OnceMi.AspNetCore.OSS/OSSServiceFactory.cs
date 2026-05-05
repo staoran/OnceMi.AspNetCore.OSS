@@ -2,7 +2,6 @@ using Aliyun.OSS;
 using COSXML;
 using COSXML.Auth;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Minio;
 using System;
@@ -13,15 +12,12 @@ namespace OnceMi.AspNetCore.OSS
     {
         private readonly IOptionsMonitor<OSSOptions> optionsMonitor;
         private readonly ICacheProvider _cache;
-        private readonly ILoggerFactory logger;
 
         public OSSServiceFactory(IOptionsMonitor<OSSOptions> optionsMonitor
-            , ICacheProvider provider
-            , ILoggerFactory logger)
+            , ICacheProvider provider)
         {
             this.optionsMonitor = optionsMonitor ?? throw new ArgumentNullException();
             this._cache = provider ?? throw new ArgumentNullException(nameof(IMemoryCache));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(ILoggerFactory));
         }
 
         public IOSSService Create()
@@ -31,7 +27,7 @@ namespace OnceMi.AspNetCore.OSS
 
         public IOSSService Create(string name)
         {
-            #region ²ÎÊýÑéÖ¤
+            #region ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤
 
             if (string.IsNullOrEmpty(name))
             {

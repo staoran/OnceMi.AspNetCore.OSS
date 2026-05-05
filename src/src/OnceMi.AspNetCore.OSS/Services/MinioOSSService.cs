@@ -1,5 +1,7 @@
 ﻿using Minio;
 using Minio.DataModel;
+using Minio.DataModel.Args;
+using Minio.DataModel.Result;
 using Minio.Exceptions;
 using OnceMi.AspNetCore.OSS.Providers;
 using System;
@@ -13,10 +15,10 @@ namespace OnceMi.AspNetCore.OSS
 {
     public class MinioOSSService : BaseOSSService, IMinioOSSService
     {
-        private readonly MinioClient _client = null;
+        private readonly IMinioClient _client = null;
         private readonly string _defaultPolicyVersion = "2012-10-17";
 
-        public MinioClient Context
+        public IMinioClient Context
         {
             get
             {
@@ -27,15 +29,15 @@ namespace OnceMi.AspNetCore.OSS
         public MinioOSSService(ICacheProvider cache, OSSOptions options)
             : base(cache, options)
         {
-            MinioClient client = new MinioClient()
+            IMinioClient builder = new MinioClient()
                 .WithEndpoint(options.Endpoint)
                 .WithRegion(options.Region)
                 .WithCredentials(options.AccessKey, options.SecretKey);
             if (options.IsEnableHttps)
             {
-                client = client.WithSSL();
+                builder = builder.WithSSL();
             }
-            this._client = client.Build();
+            this._client = builder.Build();
         }
 
         #region Minio自有方法
@@ -65,7 +67,7 @@ namespace OnceMi.AspNetCore.OSS
         /// </summary>
         /// <param name="bucketName">存储桶名称。</param>
         /// <returns></returns>
-        public Task<List<ItemUploadInfo>> ListIncompleteUploads(string bucketName)
+        public async Task<List<ItemUploadInfo>> ListIncompleteUploads(string bucketName)
         {
             if (string.IsNullOrEmpty(bucketName))
             {
@@ -73,35 +75,19 @@ namespace OnceMi.AspNetCore.OSS
             }
             ListIncompleteUploadsArgs args = new ListIncompleteUploadsArgs()
                 .WithBucket(bucketName);
-            IObservable<Upload> observable = _client.ListIncompleteUploads(args);
+            IAsyncEnumerable<Upload> enumerable = _client.ListIncompleteUploadsEnumAsync(args);
 
-            bool isFinish = false;
             List<ItemUploadInfo> result = new List<ItemUploadInfo>();
-
-            IDisposable subscription = observable.Subscribe(
-                item =>
-                {
-                    result.Add(new ItemUploadInfo()
-                    {
-                        Key = item.Key,
-                        Initiated = item.Initiated,
-                        UploadId = item.UploadId,
-                    });
-                },
-                ex =>
-                {
-                    isFinish = true;
-                    throw new Exception(ex.Message, ex);
-                },
-                () =>
-                {
-                    isFinish = true;
-                });
-            while (!isFinish)
+            await foreach (var item in enumerable)
             {
-                Thread.Sleep(0);
+                result.Add(new ItemUploadInfo()
+                {
+                    Key = item.Key,
+                    Initiated = item.Initiated,
+                    UploadId = item.UploadId,
+                });
             }
-            return Task.FromResult(result);
+            return result;
         }
 
         /// <summary>
@@ -646,48 +632,33 @@ namespace OnceMi.AspNetCore.OSS
             }
         }
 
-        public Task<List<Item>> ListObjectsAsync(string bucketName, string prefix = null)
+        public async Task<List<Item>> ListObjectsAsync(string bucketName, string prefix = null)
         {
             if (string.IsNullOrEmpty(bucketName))
             {
                 throw new ArgumentNullException(nameof(bucketName));
             }
-            IObservable<Minio.DataModel.Item> observable = _client.ListObjectsAsync(
+            IAsyncEnumerable<Minio.DataModel.Item> enumerable = _client.ListObjectsEnumAsync(
                 new ListObjectsArgs()
                     .WithBucket(bucketName)
                     .WithPrefix(prefix)
                     .WithRecursive(true));
             List<Item> result = new List<Item>();
-            bool isFinish = false;
 
-            IDisposable subscription = observable.Subscribe(
-                item =>
-                {
-                    result.Add(new Item()
-                    {
-                        Key = item.Key,
-                        LastModified = item.LastModified,
-                        ETag = item.ETag,
-                        Size = item.Size,
-                        BucketName = bucketName,
-                        IsDir = item.IsDir,
-                        LastModifiedDateTime = item.LastModifiedDateTime
-                    });
-                },
-                ex =>
-                {
-                    isFinish = true;
-                },
-                () =>
-                {
-                    isFinish = true;
-                });
-
-            while (!isFinish)
+            await foreach (var item in enumerable)
             {
-                Thread.Sleep(0);
+                result.Add(new Item()
+                {
+                    Key = item.Key,
+                    LastModified = item.LastModified,
+                    ETag = item.ETag,
+                    Size = item.Size,
+                    BucketName = bucketName,
+                    IsDir = item.IsDir,
+                    LastModifiedDateTime = item.LastModifiedDateTime
+                });
             }
-            return Task.FromResult(result);
+            return result;
         }
 
         public async Task GetObjectAsync(string bucketName, string objectName, Action<Stream> callback, CancellationToken cancellationToken = default)
@@ -884,30 +855,10 @@ namespace OnceMi.AspNetCore.OSS
             RemoveObjectsArgs args = new RemoveObjectsArgs()
                 .WithBucket(bucketName)
                 .WithObjects(delObjects);
-            IObservable<Minio.Exceptions.DeleteError> observable = await _client.RemoveObjectsAsync(args);
-            List<string> removeFailed = new List<string>();
-
-            bool isFinish = false;
-            IDisposable subscription = observable.Subscribe(
-               err =>
-               {
-                   removeFailed.Add(err.Key);
-               },
-               ex =>
-               {
-                   isFinish = true;
-                   throw ex;
-               },
-               () =>
-               {
-                   isFinish = true;
-               });
-            while (!isFinish)
+            IList<DeleteError> errors = await _client.RemoveObjectsAsync(args);
+            if (errors != null && errors.Count > 0)
             {
-                Thread.Sleep(0);
-            }
-            if (removeFailed.Count > 0)
-            {
+                List<string> removeFailed = errors.Select(e => e.Key).ToList();
                 if (removeFailed.Count == delObjects.Count)
                 {
                     throw new Exception("Remove all object failed.");
