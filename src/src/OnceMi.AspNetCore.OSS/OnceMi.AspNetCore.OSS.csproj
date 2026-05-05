@@ -3,15 +3,17 @@
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<Description>ASP.NET Core对象储存扩展包，支持Minio自建对象储存、阿里云OSS、腾讯云COS、七牛云Kodo、华为云OBS、百度云BOS、天翼云OOS经典版。</Description>
-		<Company>OnceMi</Company>
-		<Authors>OnceMi</Authors>
-		<Version>1.2.0</Version>
+		<Company>staoran</Company>
+		<Authors>staoran</Authors>
+		<Version>2.0.0</Version>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<RepositoryUrl>https://github.com/oncemi/OnceMi.AspNetCore.OSS</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/oncemi/OnceMi.AspNetCore.OSS</PackageProjectUrl>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<RepositoryType>Github</RepositoryType>
-		<PackageReleaseNotes>1. 更新依赖nuget包；2. 添加天翼云支持（by cxwos）</PackageReleaseNotes>
+		<RepositoryUrl>https://github.com/staoran/OnceMi.AspNetCore.OSS</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/staoran/OnceMi.AspNetCore.OSS</PackageProjectUrl>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<RepositoryType>git</RepositoryType>
+		<PackageReleaseNotes>2.0.0: 升级目标框架至 net8.0；升级所有 NuGet 依赖至最新版本；移除未使用的 ILoggerFactory；将华为云 SDK 日志替换为 .NET 原生 ILogger；修复 Minio v6 API 兼容性问题。</PackageReleaseNotes>
+		<PackageTags>OSS;Minio;Aliyun;QCloud;Qiniu;HuaweiCloud;BaiduCloud;Ctyun;AspNetCore</PackageTags>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

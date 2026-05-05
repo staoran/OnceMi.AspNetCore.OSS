@@ -1,0 +1,57 @@
+name: Publish to NuGet
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # Extract version from tag (e.g. v2.0.0 → 2.0.0)
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore dependencies
+        run: dotnet restore src/OnceMi.AspNetCore.OSS.sln
+
+      - name: Build (Release)
+        run: dotnet build src/src/OnceMi.AspNetCore.OSS/OnceMi.AspNetCore.OSS.csproj --no-restore -c Release
+
+      - name: Test
+        run: dotnet test src/OnceMi.AspNetCore.OSS.sln --no-build -c Release --verbosity normal
+
+      - name: Pack
+        run: |
+          dotnet pack src/src/OnceMi.AspNetCore.OSS/OnceMi.AspNetCore.OSS.csproj \
+            --no-build \
+            -c Release \
+            -p:PackageVersion=${{ steps.version.outputs.VERSION }} \
+            -o ./nupkg
+
+      # 📢 Required secret: NUGET_API_KEY
+      # To enable publishing, add a repository secret named NUGET_API_KEY with your NuGet.org API key.
+      # See: https://docs.github.com/en/actions/security-guides/encrypted-secrets
+      - name: Check NuGet API key is configured
+        run: |
+          if [ -z "${{ secrets.NUGET_API_KEY }}" ]; then
+            echo "::error::NUGET_API_KEY secret is not set. Please add your NuGet.org API key as a repository secret named NUGET_API_KEY."
+            echo "::error::Go to: Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
+          fi
+
+      - name: Push to NuGet.org
+        run: |
+          dotnet nuget push ./nupkg/*.nupkg \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate

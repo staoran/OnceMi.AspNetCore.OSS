@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  pull_request:
+    branches: [ main, master ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore src/OnceMi.AspNetCore.OSS.sln
+
+      - name: Build
+        run: dotnet build src/OnceMi.AspNetCore.OSS.sln --no-restore -c Release
+
+      - name: Test
+        run: dotnet test src/OnceMi.AspNetCore.OSS.sln --no-build -c Release --verbosity normal
