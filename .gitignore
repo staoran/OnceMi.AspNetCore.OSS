@@ -243,3 +243,7 @@ ModelManifest.xml
 .fake/
 
 out/
+
+# Local agent instructions and planning notes
+AGENTS.md
+mydocs/
