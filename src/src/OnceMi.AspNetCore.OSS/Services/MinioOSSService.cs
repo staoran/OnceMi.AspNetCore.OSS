@@ -1,5 +1,8 @@
 ﻿using Minio;
+using Minio.ApiEndpoints;
 using Minio.DataModel;
+using Minio.DataModel.Args;
+using Minio.DataModel.Result;
 using Minio.Exceptions;
 using OnceMi.AspNetCore.OSS.Providers;
 using System;
@@ -13,10 +16,10 @@ namespace OnceMi.AspNetCore.OSS
 {
     public class MinioOSSService : BaseOSSService, IMinioOSSService
     {
-        private readonly MinioClient _client = null;
+        private readonly IMinioClient _client = null;
         private readonly string _defaultPolicyVersion = "2012-10-17";
 
-        public MinioClient Context
+        public IMinioClient Context
         {
             get
             {
@@ -27,7 +30,7 @@ namespace OnceMi.AspNetCore.OSS
         public MinioOSSService(ICacheProvider cache, OSSOptions options)
             : base(cache, options)
         {
-            MinioClient client = new MinioClient()
+            IMinioClient client = new MinioClient()
                 .WithEndpoint(options.Endpoint)
                 .WithRegion(options.Region)
                 .WithCredentials(options.AccessKey, options.SecretKey);
@@ -884,27 +887,12 @@ namespace OnceMi.AspNetCore.OSS
             RemoveObjectsArgs args = new RemoveObjectsArgs()
                 .WithBucket(bucketName)
                 .WithObjects(delObjects);
-            IObservable<Minio.Exceptions.DeleteError> observable = await _client.RemoveObjectsAsync(args);
+            IList<Minio.Exceptions.DeleteError> deleteErrors = await _client.RemoveObjectsAsync(args);
             List<string> removeFailed = new List<string>();
 
-            bool isFinish = false;
-            IDisposable subscription = observable.Subscribe(
-               err =>
-               {
-                   removeFailed.Add(err.Key);
-               },
-               ex =>
-               {
-                   isFinish = true;
-                   throw ex;
-               },
-               () =>
-               {
-                   isFinish = true;
-               });
-            while (!isFinish)
+            if (deleteErrors != null)
             {
-                Thread.Sleep(0);
+                removeFailed.AddRange(deleteErrors.Select(err => err.Key));
             }
             if (removeFailed.Count > 0)
             {

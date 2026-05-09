@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      verify_trusted_publishing:
+        description: "Verify NuGet Trusted Publishing login without pushing packages"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      nuget_user:
+        description: "NuGet.org username for Trusted Publishing verification"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_VERSION: "10.0.x"
+  SOLUTION_PATH: src/OnceMi.AspNetCore.OSS.sln
+  PACKAGE_PROJECT_PATH: src/src/OnceMi.AspNetCore.OSS/OnceMi.AspNetCore.OSS.csproj
+  PACKAGE_OUTPUT: artifacts/packages
+
+jobs:
+  build-test-pack:
+    name: Build, test, and pack
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-build --verbosity normal
+
+      - name: Pack
+        run: dotnet pack ${{ env.PACKAGE_PROJECT_PATH }} --configuration Release --no-build --output ${{ env.PACKAGE_OUTPUT }}
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: |
+            ${{ env.PACKAGE_OUTPUT }}/*.nupkg
+            ${{ env.PACKAGE_OUTPUT }}/*.snupkg
+          if-no-files-found: error
+
+  trusted-publishing-readiness:
+    name: NuGet Trusted Publishing readiness
+    runs-on: ubuntu-latest
+    needs: build-test-pack
+    if: github.event_name == 'workflow_dispatch' && inputs.verify_trusted_publishing == 'true'
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Download package artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: artifacts/packages
+
+      - name: Require NuGet username
+        run: |
+          if [ -z "${{ inputs.nuget_user }}" ]; then
+            echo "nuget_user is required to verify Trusted Publishing." >&2
+            exit 1
+          fi
+
+      - name: Verify NuGet Trusted Publishing login
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ inputs.nuget_user }}
+
+      - name: Confirm publish is intentionally disabled
+        run: |
+          echo "Trusted Publishing login completed."
+          echo "Package push is intentionally disabled for this fork preparation stage."
+          echo "Artifacts prepared:"
+          ls -la artifacts/packages

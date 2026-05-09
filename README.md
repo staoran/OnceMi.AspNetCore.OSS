@@ -1,6 +1,6 @@
 
 # OnceMi.AspNetCore.OSS
-ASP.NET Core对象储存扩展包，支持Minio自建对象储存、阿里云OSS、腾讯云COS、七牛云Kodo、华为云OBS、百度云BOS、天翼云OOS经典版。支持OSS常规操作，比如储存桶创建，删除、对象上传、下载、生成签名URL等。目前支持.NET Core3.1/.NET 5/.NET 6，推荐升级至.NET 6.
+ASP.NET Core对象储存扩展包，支持Minio自建对象储存、阿里云OSS、腾讯云COS、七牛云Kodo、华为云OBS、百度云BOS、天翼云OOS经典版。支持OSS常规操作，比如储存桶创建，删除、对象上传、下载、生成签名URL等。主库目标框架为.NET Standard 2.1，示例和测试项目以.NET 10作为当前构建基线。
 
 ## 各厂家相关SDK文档  
 - Minio: [点此查看](https://docs.min.io/docs/dotnet-client-api-reference.html "点此查看")  
@@ -14,6 +14,12 @@ ASP.NET Core对象储存扩展包，支持Minio自建对象储存、阿里云OSS
 ## 已知问题  
 1. Minio通过Nginx发反向代理后直接通过域名（不加端口）调用存在问题，应该是Minio本身问题，有兴趣的可以自行测试研究，具体信息我已经发布在Issue中。  
 2. ~~腾讯云`PutObjectAsync`流式上传接口，有非常低的概率会抛“储存桶不存在的异常”，应该是腾讯云自身的原因，具体原因未知。~~ PS：最近没有复现了
+
+## 构建与发布准备
+- 当前仓库使用.NET 10 SDK执行`restore`、`build`、`test`和`pack`。
+- GitHub Actions会上传`.nupkg`构建产物，并提供NuGet Trusted Publishing/OIDC登录验证入口。
+- 当前阶段只准备发布能力，不真实发布NuGet包；fork仓库没有原`OnceMi.AspNetCore.OSS`包的发布权限。
+- Trusted Publishing需要在NuGet.org中配置仓库 owner、repository、workflow 文件名和可选 environment；本仓库不使用长期`NUGET_API_KEY`作为主发布路径。
 
 ## 如何使用  
 1、安装`OnceMi.AspNetCore.OSS`依赖。  
@@ -32,7 +38,7 @@ You need to configure OSSService in your Startup.cs：
 services.AddOSSService(option =>
 {
     option.Provider = OSSProvider.Minio;
-    option.Endpoint = "oss.oncemi.com:9000";
+    option.Endpoint = "oss.example.com:9000";
     option.AccessKey = "Q*************9";
     option.SecretKey = "A**************************Q";
     option.IsEnableHttps = true;
@@ -390,12 +396,15 @@ services.TryAddSingleton<ICacheProvider, RedisCacheProvider>();
 ## Dependencies
 
 1. Aliyun.OSS.SDK.NetCore
-2. Microsoft.Extensions.Caching.Memory
-3. Newtonsoft.Json
-4. Tencent.QCloud.Cos.Sdk
-5. Minio
-6. Qiniu
-7. https://github.com/huaweicloud/huaweicloud-sdk-dotnet-obs
+2. BceSdkDotNetCore
+3. Microsoft.Extensions.Caching.Memory
+4. Microsoft.Extensions.Configuration.Binder
+5. Microsoft.Extensions.DependencyInjection
+6. Microsoft.Extensions.Options
+7. Tencent.QCloud.Cos.Sdk
+8. Minio
+9. Qiniu
+10. https://github.com/huaweicloud/huaweicloud-sdk-dotnet-obs
 
 ## To do list  
 ~~1. 修改签名URL过期策略为滑动过期策略~~  
