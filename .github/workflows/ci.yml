@@ -26,8 +26,8 @@ permissions:
 
 env:
   DOTNET_VERSION: "10.0.x"
-  SOLUTION_PATH: src/OnceMi.AspNetCore.OSS.sln
-  PACKAGE_PROJECT_PATH: src/src/OnceMi.AspNetCore.OSS/OnceMi.AspNetCore.OSS.csproj
+  SOLUTION_PATH: src/EasyLink.Storage.sln
+  PACKAGE_PROJECT_PATH: src/src/EasyLink.Storage/EasyLink.Storage.csproj
   PACKAGE_OUTPUT: artifacts/packages
 
 jobs:

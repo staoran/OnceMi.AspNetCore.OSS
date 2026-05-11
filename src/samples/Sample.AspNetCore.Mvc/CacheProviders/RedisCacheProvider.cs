@@ -1,6 +1,6 @@
 using FreeRedis;
 using EasyLink.Storage;
-using LegacyJsonUtil = OnceMi.Framework.Util.Json.JsonUtil;
+using LegacyJsonUtil = Sample.AspNetCore.Mvc.CacheProviders.Json.JsonUtil;
 using System;
 
 namespace Sample.AspNetCore.Mvc.CacheProviders

@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>EasyLink.Storage.Tests</AssemblyName>
+    <RootNamespace>EasyLink.Storage.Tests</RootNamespace>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>

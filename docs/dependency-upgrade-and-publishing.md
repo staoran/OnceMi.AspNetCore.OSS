@@ -29,9 +29,9 @@
 | `OnceMi.AspNetCore.OSS` | `Microsoft.Extensions.Options` | `7.0.1` | `10.0.7` | 是 | 未发现编译 API 断裂。 |
 | `Sample.AspNetCore.Mvc` | `Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation` | `7.0.10` | `10.0.7` | 是 | 示例项目目标框架同步升级到 `net10.0`。 |
 | `Sample.AspNetCore.Mvc` | `FreeRedis` | `1.1.5` | `1.5.5` | 是 | 未发现编译 API 断裂。 |
-| `OnceMi.AspNetCore.OSSTests` | `Microsoft.NET.Test.Sdk` | `17.7.0` | `18.5.1` | 是 | 测试项目目标框架同步升级到 `net10.0`。 |
-| `OnceMi.AspNetCore.OSSTests` | `MSTest.TestAdapter` | `3.1.1` | `4.2.2` | 是 | 测试写法做了 MSTest 4 兼容调整。 |
-| `OnceMi.AspNetCore.OSSTests` | `MSTest.TestFramework` | `3.1.1` | `4.2.2` | 是 | 测试写法做了 MSTest 4 兼容调整。 |
+| `EasyLink.Storage.Tests` | `Microsoft.NET.Test.Sdk` | `17.7.0` | `18.5.1` | 是 | 测试项目目标框架同步升级到 `net10.0`。 |
+| `EasyLink.Storage.Tests` | `MSTest.TestAdapter` | `3.1.1` | `4.2.2` | 是 | 测试写法做了 MSTest 4 兼容调整。 |
+| `EasyLink.Storage.Tests` | `MSTest.TestFramework` | `3.1.1` | `4.2.2` | 是 | 测试写法做了 MSTest 4 兼容调整。 |
 
 未升级但保留的直接引用：
 
@@ -43,7 +43,7 @@
 
 ### Minio 5 到 7
 
-Minio 7 的类型和返回值有变化，主要影响 `src/src/OnceMi.AspNetCore.OSS/Services/MinioOSSService.cs`。
+Minio 7 的类型和返回值有变化，主要影响 `src/src/EasyLink.Storage/Services/MinioOSSService.cs`。
 
 已做改动：
 
@@ -144,8 +144,8 @@ permissions:
 
 env:
   DOTNET_VERSION: "10.0.x"
-  SOLUTION_PATH: src/OnceMi.AspNetCore.OSS.sln
-  PACKAGE_PROJECT_PATH: src/src/OnceMi.AspNetCore.OSS/OnceMi.AspNetCore.OSS.csproj
+  SOLUTION_PATH: src/EasyLink.Storage.sln
+  PACKAGE_PROJECT_PATH: src/src/EasyLink.Storage/EasyLink.Storage.csproj
   PACKAGE_OUTPUT: artifacts/packages
   NUGET_SOURCE: https://api.nuget.org/v3/index.json
 
@@ -224,7 +224,7 @@ jobs:
 
 ### 4. 发布版本
 
-发布前确认 `src/src/OnceMi.AspNetCore.OSS/OnceMi.AspNetCore.OSS.csproj` 中的 `<Version>` 已更新，例如：
+发布前确认 `src/src/EasyLink.Storage/EasyLink.Storage.csproj` 中的 `<Version>` 已更新，例如：
 
 ```xml
 <Version>1.3.0</Version>

@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace OnceMi.Framework.Util.Json
+namespace Sample.AspNetCore.Mvc.CacheProviders.Json
 {
     public class DateTimeNullableConverter : JsonConverter<DateTime?>
     {

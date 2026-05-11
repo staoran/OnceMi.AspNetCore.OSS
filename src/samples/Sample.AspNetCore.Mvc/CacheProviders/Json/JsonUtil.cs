@@ -6,7 +6,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace OnceMi.Framework.Util.Json
+namespace Sample.AspNetCore.Mvc.CacheProviders.Json
 {
     public class JsonUtil
     {

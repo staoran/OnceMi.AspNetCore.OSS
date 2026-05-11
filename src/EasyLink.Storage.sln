@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyLink.Storage.BaiduBOS",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyLink.Storage.CtyunOOS", "src\EasyLink.Storage.CtyunOOS\EasyLink.Storage.CtyunOOS.csproj", "{250BD3E1-BB1C-4848-9B39-D1253191206C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnceMi.AspNetCore.OSSTests", "src\OnceMi.AspNetCore.OSSTests\OnceMi.AspNetCore.OSSTests.csproj", "{F0A338B0-653C-4858-A64A-64737F3BCD3F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyLink.Storage.Tests", "src\EasyLink.Storage.Tests\EasyLink.Storage.Tests.csproj", "{F0A338B0-653C-4858-A64A-64737F3BCD3F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{1626F130-CB7D-4E1C-995B-84FDCCA2F8B6}"
 EndProject

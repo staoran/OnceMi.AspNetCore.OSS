@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace OnceMi.Framework.Util.Json
+namespace Sample.AspNetCore.Mvc.CacheProviders.Json
 {
     public class ExceptionConverter : JsonConverter<Exception>
     {
