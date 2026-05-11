@@ -8,14 +8,17 @@ namespace EasyLink.Storage
         private readonly IOptionsMonitor<OSSOptions> optionsMonitor;
         private readonly ICacheProvider _cache;
         private readonly StorageProviderRegistry registry;
+        private readonly IServiceProvider serviceProvider;
 
         public OSSServiceFactory(IOptionsMonitor<OSSOptions> optionsMonitor
             , ICacheProvider provider
-            , IOptions<StorageProviderRegistry> registryOptions)
+            , IOptions<StorageProviderRegistry> registryOptions
+            , IServiceProvider serviceProvider)
         {
             this.optionsMonitor = optionsMonitor ?? throw new ArgumentNullException();
             this._cache = provider ?? throw new ArgumentNullException(nameof(provider));
             this.registry = registryOptions?.Value ?? throw new ArgumentNullException(nameof(registryOptions));
+            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
         public IOSSService Create()
@@ -57,7 +60,7 @@ namespace EasyLink.Storage
 
             #endregion
 
-            if (!registry.TryGetFactory(options.Provider, out StorageProviderFactory factory))
+            if (!registry.TryGetFactory(options.Provider, out ServiceStorageProviderFactory factory))
             {
                 string registered = registry.DescribeRegisteredProviders();
                 string packageHint = GetProviderPackageHint(options.Provider);
@@ -70,7 +73,7 @@ namespace EasyLink.Storage
                 throw new InvalidOperationException(message);
             }
 
-            return factory(_cache, options);
+            return factory(serviceProvider, _cache, options);
         }
 
         private static string GetProviderPackageHint(StorageProvider provider)

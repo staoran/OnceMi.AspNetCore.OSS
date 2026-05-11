@@ -1,6 +1,8 @@
 using OBS;
+using OBS.Internal.Log;
 using OBS.Model;
 using EasyLink.Storage.Models.Huawei;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,9 +31,11 @@ namespace EasyLink.Storage
             }
         }
 
-        public HaweiOSSService(ICacheProvider cache, OSSOptions options)
+        public HaweiOSSService(ICacheProvider cache, OSSOptions options, ILoggerFactory loggerFactory = null)
             : base(cache, options)
         {
+            LoggerMgr.Configure(loggerFactory);
+
             string endPoint = options.Endpoint;
             //如果是不带协议的endpoint，添加协议
             if (!endPoint.StartsWith("http", StringComparison.OrdinalIgnoreCase))

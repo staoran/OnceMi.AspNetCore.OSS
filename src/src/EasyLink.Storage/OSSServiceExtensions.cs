@@ -25,6 +25,21 @@ namespace EasyLink.Storage
             return services;
         }
 
+        public static IServiceCollection AddStorageProvider(this IServiceCollection services, StorageProvider provider, ServiceStorageProviderFactory factory)
+        {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+            if (factory == null)
+            {
+                throw new ArgumentNullException(nameof(factory));
+            }
+
+            services.Configure<StorageProviderRegistry>(registry => registry.Register(provider, factory));
+            return services;
+        }
+
         public static IServiceCollection AddStorageService(this IServiceCollection services, string key)
         {
             return services.AddStorageService(DefaultOptionName.Name, key);
