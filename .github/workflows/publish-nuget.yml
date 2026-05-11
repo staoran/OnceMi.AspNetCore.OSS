@@ -1,9 +1,6 @@
 name: Publish NuGet
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
   workflow_dispatch:
 
 permissions:
@@ -39,17 +36,6 @@ jobs:
       - name: Test
         run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-build --verbosity normal
 
-      - name: Verify tag matches package version
-        if: github.event_name == 'push'
-        shell: bash
-        run: |
-          package_version="$(dotnet msbuild "${{ env.PACKAGE_PROJECT_PATH }}" -getProperty:Version -nologo)"
-          tag_version="${GITHUB_REF_NAME#v}"
-          if [ "$package_version" != "$tag_version" ]; then
-            echo "Tag version '$tag_version' does not match package version '$package_version'." >&2
-            exit 1
-          fi
-
       - name: Pack
         run: dotnet pack ${{ env.PACKAGE_PROJECT_PATH }} --configuration Release --no-build --output ${{ env.PACKAGE_OUTPUT }}
 
@@ -70,6 +56,8 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    env:
+      NUGET_USER: ${{ vars.NUGET_USER || 'taoran' }}
 
     steps:
       - name: Download package artifacts
@@ -81,8 +69,8 @@ jobs:
       - name: Require NuGet username
         shell: bash
         run: |
-          if [ -z "${{ vars.NUGET_USER }}" ]; then
-            echo "NUGET_USER repository or environment variable is required." >&2
+          if [ -z "${{ env.NUGET_USER }}" ]; then
+            echo "NUGET_USER is required for NuGet Trusted Publishing." >&2
             exit 1
           fi
 
@@ -90,7 +78,7 @@ jobs:
         uses: NuGet/login@v1
         id: login
         with:
-          user: ${{ vars.NUGET_USER }}
+          user: ${{ env.NUGET_USER }}
 
       - name: Push package
         shell: bash

@@ -17,9 +17,10 @@ ASP.NET Core 对象存储扩展包族。核心包是 `EasyLink.Storage`，各 pr
 
 ## 构建与发布准备
 - 当前仓库使用.NET 10 SDK执行`restore`、`build`、`test`和`pack`。
-- GitHub Actions会上传`.nupkg`构建产物，并提供NuGet Trusted Publishing/OIDC登录验证入口。
-- 当前阶段只准备发布能力，不真实发布 NuGet 包；fork 仓库没有原 `OnceMi.AspNetCore.OSS` 包的发布权限。
+- GitHub Actions 的主入口是`.github/workflows/ci.yml`：自动触发只响应`v*.*.*` tag；手动运行时默认构建、测试、打包，选择`publish_to_nuget=true`时发布 NuGet 包。
+- `.github/workflows/publish-nuget.yml`只保留为手动备用发布入口，不再响应 tag，避免重复推包。
 - Trusted Publishing需要在NuGet.org中配置仓库 owner、repository、workflow 文件名和可选 environment；本仓库不使用长期`NUGET_API_KEY`作为主发布路径。
+- `NUGET_USER`可通过 GitHub repository 或 environment variable 覆盖；未配置时 workflow 使用`taoran`作为 NuGet.org username。
 
 ## 如何使用
 1、安装核心包和所需 provider 包。

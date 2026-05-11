@@ -2,7 +2,7 @@
 
 本文记录 1 号任务中的 NuGet 依赖升级结果、由升级引发的代码改动，以及后续具备 NuGet 包权限后如何开启自动发包。
 
-更新时间：2026-05-09
+更新时间：2026-05-11
 
 ## 升级结论
 
@@ -95,8 +95,8 @@ Minio 7 的类型和返回值有变化，主要影响 `src/src/EasyLink.Storage/
 
 当前仓库已经有两个 workflow：
 
-- `.github/workflows/ci.yml`：构建、测试、打包并上传 `.nupkg` artifact；可手动验证 Trusted Publishing 登录；不执行推包。
-- `.github/workflows/publish-nuget.yml`：在后续配置完成后，通过 `v*.*.*` tag 或手动触发真实发布 NuGet 包。
+- `.github/workflows/ci.yml`：主发布入口。自动触发只响应 `v*.*.*` tag；手动运行时会执行构建、测试、打包，选择 `publish_to_nuget=true` 时会继续发布到 NuGet。
+- `.github/workflows/publish-nuget.yml`：手动备用发布入口，只保留 `workflow_dispatch`，不再响应 tag，避免 tag 发布时重复推包。
 
 要真正自动发包，需要先拥有目标 NuGet 包的发布权限。如果只是 fork 原仓库源码，没有原 `OnceMi.AspNetCore.OSS` 包权限，应选择新的 `PackageId` 发布，或先获得原包 owner 授权。
 
@@ -120,24 +120,32 @@ Minio 7 的类型和返回值有变化，主要影响 `src/src/EasyLink.Storage/
 | --- | --- |
 | Repository owner | `staoran` 或实际 GitHub owner |
 | Repository name | `OnceMi.AspNetCore.OSS` 或实际 repo 名 |
-| Workflow file | `publish-nuget.yml` |
+| Workflow file | `ci.yml` |
 | Environment | `nuget-production`，推荐启用 |
-| Package | `OnceMi.AspNetCore.OSS`，或你实际拥有权限的新包名 |
+| Package | `EasyLink.Storage`，或你实际拥有权限的包名 |
 
-如果配置了 environment，GitHub workflow 里的 publish job 也必须使用同名 environment。
+如果配置了 environment，GitHub workflow 里的 publish job 也必须使用同名 environment。若使用 `.github/workflows/publish-nuget.yml` 作为备用手动入口，需要在 NuGet.org 中额外配置匹配 `publish-nuget.yml` 的 Trusted Publishing policy。
 
 ### 2. 发布 workflow
 
-仓库已新增 `.github/workflows/publish-nuget.yml`。核心流程如下：
+主入口是 `.github/workflows/ci.yml`。核心触发和发布逻辑如下：
 
 ```yaml
-name: Publish NuGet
+name: CI
 
 on:
   push:
     tags:
       - "v*.*.*"
   workflow_dispatch:
+    inputs:
+      publish_to_nuget:
+        description: "Publish packages to NuGet after build, test, and pack"
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 permissions:
   contents: read
@@ -151,47 +159,19 @@ env:
 
 jobs:
   build-test-pack:
-    name: Build, test, and pack
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Restore
-        run: dotnet restore ${{ env.SOLUTION_PATH }}
-
-      - name: Build
-        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
-
-      - name: Test
-        run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-build --verbosity normal
-
-      - name: Pack
-        run: dotnet pack ${{ env.PACKAGE_PROJECT_PATH }} --configuration Release --no-build --output ${{ env.PACKAGE_OUTPUT }}
-
-      - name: Upload package artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: nuget-packages
-          path: |
-            ${{ env.PACKAGE_OUTPUT }}/*.nupkg
-            ${{ env.PACKAGE_OUTPUT }}/*.snupkg
-          if-no-files-found: error
+    # restore/build/test/pack/upload artifact
 
   publish:
     name: Publish to NuGet
     runs-on: ubuntu-latest
     needs: build-test-pack
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget == 'true')
     environment: nuget-production
     permissions:
       contents: read
       id-token: write
+    env:
+      NUGET_USER: ${{ vars.NUGET_USER || 'taoran' }}
 
     steps:
       - name: Download package artifacts
@@ -204,13 +184,13 @@ jobs:
         uses: NuGet/login@v1
         id: login
         with:
-          user: ${{ vars.NUGET_USER }}
+          user: ${{ env.NUGET_USER }}
 
       - name: Push package
         run: dotnet nuget push "<package>.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source "${{ env.NUGET_SOURCE }}" --skip-duplicate
 ```
 
-实际 workflow 会遍历 `artifacts/packages/*.nupkg` 并逐个推送。
+实际 workflow 会遍历 `artifacts/packages/*.nupkg` 并逐个推送。`NUGET_USER` 优先读取 GitHub repository 或 environment variable；未配置时兜底使用 `taoran`。
 
 ### 3. 配置 GitHub environment
 
@@ -220,7 +200,7 @@ jobs:
 
 - Required reviewers：至少 1 人。
 - Deployment branches and tags：只允许 `v*.*.*` tag 或主分支。
-- Environment variables：配置 `NUGET_USER`，值为 NuGet.org username，不是邮箱；它不是 API key。
+- Environment variables：可配置 `NUGET_USER` 覆盖默认值，值为 NuGet.org username，不是邮箱；它不是 API key。未配置时 workflow 使用 `taoran`。
 
 ### 4. 发布版本
 
@@ -237,35 +217,36 @@ git tag v1.3.0
 git push origin v1.3.0
 ```
 
-tag push 后，`publish-nuget.yml` 会自动运行。workflow 会先 restore/build/test/pack，再通过 Trusted Publishing 登录 NuGet.org，最后推送 `.nupkg`。
+tag push 后，`ci.yml` 会自动运行。workflow 会先 restore/build/test/pack，再通过 Trusted Publishing 登录 NuGet.org，最后推送 `.nupkg`。
 
 tag 版本必须与 `.csproj` 中的 `<Version>` 一致。例如 `<Version>1.3.0</Version>` 只能用 `v1.3.0` tag 发布；不一致时 workflow 会失败并阻止发布。
+
+手动发布时，在 GitHub Actions 里运行 `CI` workflow，并把 `publish_to_nuget` 选择为 `true`。这会走同一套 restore/build/test/pack/publish 链路。备用入口是手动运行 `Publish NuGet` workflow。
 
 ### 5. 首次发布前检查
 
 首次启用真实发布前，至少检查：
 
-- NuGet.org 上的 Trusted Publishing policy 与 workflow 文件名完全一致。
+- NuGet.org 上的 Trusted Publishing policy 与 workflow 文件名完全一致；主入口应配置为 `ci.yml`。
 - workflow 中的 `environment` 与 NuGet.org policy 中的 environment 一致。
-- GitHub environment 中已配置 `NUGET_USER`。
+- `NUGET_USER` 未配置时会使用 `taoran`；若实际 NuGet profile name 不同，应在 GitHub repository 或 environment variables 中配置正确值。
 - `.nupkg` 内包含 `README.md` 和 `LICENSE`。
 - `dotnet list package --vulnerable --include-transitive` 无已知漏洞。
 - 包名是你有权限发布的包名。
 
 ### 6. 当前仓库现状
 
-当前 `.github/workflows/ci.yml` 只做发布准备验证：
+当前 `.github/workflows/ci.yml` 是主发布入口：
 
-- 自动执行 restore/build/test/pack。
+- 自动触发只响应 `v*.*.*` tag，不响应普通分支 push 或 pull request。
+- 自动 tag 触发时执行 restore/build/test/pack，并在 tag 版本匹配包版本后发布 NuGet。
 - 上传 package artifacts。
-- 手动触发时可验证 Trusted Publishing 登录。
-- 不执行 `dotnet nuget push`。
+- 手动触发时默认只执行 restore/build/test/pack；选择 `publish_to_nuget=true` 时执行 `dotnet nuget push`。
 
-当前 `.github/workflows/publish-nuget.yml` 已经包含真实发布步骤，但只有在以下条件都满足时才能成功：
+当前 `.github/workflows/publish-nuget.yml` 是手动备用发布入口。两个发布入口只有在以下条件都满足时才能成功：
 
-- 触发 `v*.*.*` tag 或手动运行 workflow。
 - GitHub environment `nuget-production` 存在并通过保护规则。
-- `NUGET_USER` 变量已配置。
+- `NUGET_USER` 变量已配置，或确认默认 `taoran` 是正确的 NuGet.org username。
 - NuGet.org Trusted Publishing policy 与仓库、workflow 文件名、environment 匹配。
 - 目标包名是当前 NuGet 账号有权限发布的包。
 

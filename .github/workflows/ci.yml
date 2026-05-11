@@ -2,24 +2,18 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-      - master
-  pull_request:
+    tags:
+      - "v*.*.*"
   workflow_dispatch:
     inputs:
-      verify_trusted_publishing:
-        description: "Verify NuGet Trusted Publishing login without pushing packages"
+      publish_to_nuget:
+        description: "Publish packages to NuGet after build, test, and pack"
         required: false
         default: "false"
         type: choice
         options:
           - "false"
           - "true"
-      nuget_user:
-        description: "NuGet.org username for Trusted Publishing verification"
-        required: false
-        type: string
 
 permissions:
   contents: read
@@ -29,6 +23,7 @@ env:
   SOLUTION_PATH: src/EasyLink.Storage.sln
   PACKAGE_PROJECT_PATH: src/src/EasyLink.Storage/EasyLink.Storage.csproj
   PACKAGE_OUTPUT: artifacts/packages
+  NUGET_SOURCE: https://api.nuget.org/v3/index.json
 
 jobs:
   build-test-pack:
@@ -53,6 +48,17 @@ jobs:
       - name: Test
         run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-build --verbosity normal
 
+      - name: Verify tag matches package version
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          package_version="$(dotnet msbuild "${{ env.PACKAGE_PROJECT_PATH }}" -getProperty:Version -nologo)"
+          tag_version="${GITHUB_REF_NAME#v}"
+          if [ "$package_version" != "$tag_version" ]; then
+            echo "Tag version '$tag_version' does not match package version '$package_version'." >&2
+            exit 1
+          fi
+
       - name: Pack
         run: dotnet pack ${{ env.PACKAGE_PROJECT_PATH }} --configuration Release --no-build --output ${{ env.PACKAGE_OUTPUT }}
 
@@ -65,14 +71,17 @@ jobs:
             ${{ env.PACKAGE_OUTPUT }}/*.snupkg
           if-no-files-found: error
 
-  trusted-publishing-readiness:
-    name: NuGet Trusted Publishing readiness
+  publish:
+    name: Publish to NuGet
     runs-on: ubuntu-latest
     needs: build-test-pack
-    if: github.event_name == 'workflow_dispatch' && inputs.verify_trusted_publishing == 'true'
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget == 'true')
+    environment: nuget-production
     permissions:
       contents: read
       id-token: write
+    env:
+      NUGET_USER: ${{ vars.NUGET_USER || 'taoran' }}
 
     steps:
       - name: Download package artifacts
@@ -82,21 +91,32 @@ jobs:
           path: artifacts/packages
 
       - name: Require NuGet username
+        shell: bash
         run: |
-          if [ -z "${{ inputs.nuget_user }}" ]; then
-            echo "nuget_user is required to verify Trusted Publishing." >&2
+          if [ -z "${{ env.NUGET_USER }}" ]; then
+            echo "NUGET_USER is required for NuGet Trusted Publishing." >&2
             exit 1
           fi
 
-      - name: Verify NuGet Trusted Publishing login
+      - name: NuGet login
         uses: NuGet/login@v1
         id: login
         with:
-          user: ${{ inputs.nuget_user }}
+          user: ${{ env.NUGET_USER }}
 
-      - name: Confirm publish is intentionally disabled
+      - name: Push package
+        shell: bash
         run: |
-          echo "Trusted Publishing login completed."
-          echo "Package push is intentionally disabled for this fork preparation stage."
-          echo "Artifacts prepared:"
-          ls -la artifacts/packages
+          shopt -s nullglob
+          packages=("${{ env.PACKAGE_OUTPUT }}"/*.nupkg)
+          if [ ${#packages[@]} -eq 0 ]; then
+            echo "No .nupkg files found in ${{ env.PACKAGE_OUTPUT }}." >&2
+            exit 1
+          fi
+
+          for package in "${packages[@]}"; do
+            dotnet nuget push "$package" \
+              --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+              --source "${{ env.NUGET_SOURCE }}" \
+              --skip-duplicate
+          done
