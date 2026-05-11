@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <PackageId>EasyLink.Storage.Minio</PackageId>
+    <AssemblyName>EasyLink.Storage.Minio</AssemblyName>
+    <RootNamespace>EasyLink.Storage.Minio</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EasyLink.Storage\EasyLink.Storage.csproj" />
+    <PackageReference Include="Minio" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\EasyLink.Storage\Services\MinioOSSService.cs" Link="Services\MinioOSSService.cs" />
+    <Compile Include="..\EasyLink.Storage\Interface\Service\IMinioOSSService.cs" Link="Interface\Service\IMinioOSSService.cs" />
+    <Compile Include="..\EasyLink.Storage\Models\ItemUploadInfo.cs" Link="Models\ItemUploadInfo.cs" />
+    <Compile Include="..\EasyLink.Storage\Models\PolicyInfo.cs" Link="Models\PolicyInfo.cs" />
+    <Compile Include="..\EasyLink.Storage\Models\Policy\Principal.cs" Link="Models\Policy\Principal.cs" />
+    <Compile Include="..\EasyLink.Storage\Models\Policy\StatementItem.cs" Link="Models\Policy\StatementItem.cs" />
+  </ItemGroup>
+</Project>

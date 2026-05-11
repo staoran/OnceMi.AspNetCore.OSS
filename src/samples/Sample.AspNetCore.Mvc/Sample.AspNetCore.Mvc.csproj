@@ -18,7 +18,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\OnceMi.AspNetCore.OSS\OnceMi.AspNetCore.OSS.csproj" />
+		<ProjectReference Include="..\..\src\EasyLink.Storage\EasyLink.Storage.csproj" />
+		<ProjectReference Include="..\..\src\EasyLink.Storage.Minio\EasyLink.Storage.Minio.csproj" />
+		<ProjectReference Include="..\..\src\EasyLink.Storage.AliyunOSS\EasyLink.Storage.AliyunOSS.csproj" />
+		<ProjectReference Include="..\..\src\EasyLink.Storage.TencentCOS\EasyLink.Storage.TencentCOS.csproj" />
+		<ProjectReference Include="..\..\src\EasyLink.Storage.QiniuKodo\EasyLink.Storage.QiniuKodo.csproj" />
+		<ProjectReference Include="..\..\src\EasyLink.Storage.HuaweiOBS\EasyLink.Storage.HuaweiOBS.csproj" />
+		<ProjectReference Include="..\..\src\EasyLink.Storage.BaiduBOS\EasyLink.Storage.BaiduBOS.csproj" />
+		<ProjectReference Include="..\..\src\EasyLink.Storage.CtyunOOS\EasyLink.Storage.CtyunOOS.csproj" />
 	</ItemGroup>
 
 	<ProjectExtensions>

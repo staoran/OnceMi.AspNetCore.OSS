@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<PackageId>EasyLink.Storage</PackageId>
+		<AssemblyName>EasyLink.Storage</AssemblyName>
+		<RootNamespace>EasyLink.Storage</RootNamespace>
+		<Description>ASP.NET Core对象储存扩展包，支持Minio自建对象储存、阿里云OSS、腾讯云COS、七牛云Kodo、华为云OBS、百度云BOS、天翼云OOS经典版。</Description>
+		<Company>OnceMi</Company>
+		<Authors>OnceMi contributors</Authors>
+		<Version>2.0.0</Version>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/staoran/OnceMi.AspNetCore.OSS</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/staoran/OnceMi.AspNetCore.OSS</PackageProjectUrl>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>aspnetcore;oss;object-storage;minio;aliyun;tencent;qiniu;huawei;baidu;ctyun</PackageTags>
+		<PackageReleaseNotes>1. Upgrade dependencies for the .NET 10 build baseline; 2. Add CI/CD and NuGet Trusted Publishing preparation; 3. Add smoke tests and package metadata.</PackageReleaseNotes>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DefineConstants>donetcore</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DefineConstants>donetcore</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.7" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="10.0.7" />
+		<PackageReference Include="System.Text.Json" Version="10.0.7" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Remove="Services\**\*.cs" />
+		<Compile Remove="SDK\**\*.cs" />
+		<Compile Remove="Interface\Service\**\*.cs" />
+		<Compile Remove="Models\BucketCorsRule.cs" />
+		<Compile Remove="Models\ItemUploadInfo.cs" />
+		<Compile Remove="Models\PolicyInfo.cs" />
+		<Compile Remove="Models\Policy\Principal.cs" />
+		<Compile Remove="Models\Policy\StatementItem.cs" />
+		<Compile Remove="Models\Ctyun\**\*.cs" />
+		<Compile Remove="Models\Huawei\**\*.cs" />
+		<Compile Remove="Models\Qiniu\**\*.cs" />
+	</ItemGroup>
+
+</Project>

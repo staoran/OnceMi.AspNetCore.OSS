@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <PackageId>EasyLink.Storage.AliyunOSS</PackageId>
+    <AssemblyName>EasyLink.Storage.AliyunOSS</AssemblyName>
+    <RootNamespace>EasyLink.Storage.AliyunOSS</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EasyLink.Storage\EasyLink.Storage.csproj" />
+    <PackageReference Include="Aliyun.OSS.SDK.NetCore" Version="2.14.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\EasyLink.Storage\Services\AliyunOSSService.cs" Link="Services\AliyunOSSService.cs" />
+    <Compile Include="..\EasyLink.Storage\Interface\Service\IAliyunOSSService.cs" Link="Interface\Service\IAliyunOSSService.cs" />
+    <Compile Include="..\EasyLink.Storage\Models\BucketCorsRule.cs" Link="Models\BucketCorsRule.cs" />
+  </ItemGroup>
+</Project>

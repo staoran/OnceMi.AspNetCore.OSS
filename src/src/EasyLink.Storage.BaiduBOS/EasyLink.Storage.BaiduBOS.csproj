@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <PackageId>EasyLink.Storage.BaiduBOS</PackageId>
+    <AssemblyName>EasyLink.Storage.BaiduBOS</AssemblyName>
+    <RootNamespace>EasyLink.Storage.BaiduBOS</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EasyLink.Storage\EasyLink.Storage.csproj" />
+    <PackageReference Include="BceSdkDotNetCore" Version="1.0.6.1123" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\EasyLink.Storage\Services\BaiduOSSService.cs" Link="Services\BaiduOSSService.cs" />
+    <Compile Include="..\EasyLink.Storage\Interface\Service\IBaiduOSSService.cs" Link="Interface\Service\IBaiduOSSService.cs" />
+  </ItemGroup>
+</Project>

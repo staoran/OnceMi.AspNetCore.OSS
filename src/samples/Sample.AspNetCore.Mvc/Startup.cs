@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using OnceMi.AspNetCore.OSS;
+using EasyLink.Storage;
 using Sample.AspNetCore.Mvc.CacheProviders;
 using System;
 using System.Collections.Generic;
@@ -27,17 +27,25 @@ namespace Sample.AspNetCore.Mvc
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //Ê¹ÓÃRedisÀ´Ìæ»»Ä¬ÈÏµÄ»º´æÊµÏÖ
+            //Ê¹ï¿½ï¿½Redisï¿½ï¿½ï¿½æ»»Ä¬ï¿½ÏµÄ»ï¿½ï¿½ï¿½Êµï¿½ï¿½
             var client = new RedisClient("127.0.0.1:6379,password=,ConnectTimeout=3000,defaultdatabase=0");
             services.TryAddSingleton<RedisClient>(client);
             services.TryAddSingleton<ICacheProvider, RedisCacheProvider>();
 
+            services.AddMinioStorageProvider();
+            services.AddAliyunStorageProvider();
+            services.AddTencentCOSStorageProvider();
+            services.AddQiniuKodoStorageProvider();
+            services.AddHuaweiOBSStorageProvider();
+            services.AddBaiduBOSStorageProvider();
+            services.AddCtyunOOSStorageProvider();
+
             //default minio
-            //Ìí¼ÓÄ¬ÈÏ¶ÔÏó´¢´æÅäÖÃÐÅÏ¢
-            services.AddOSSService(option =>
+            //ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½Ï¶ï¿½ï¿½ó´¢´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
+            services.AddStorageService(option =>
             {
-                option.Provider = OSSProvider.Minio;
-                option.Endpoint = "oss.oncemi.com:9000";  //²»ÐèÒª´øÓÐÐ­Òé
+                option.Provider = StorageProvider.Minio;
+                option.Endpoint = "oss.oncemi.com:9000";  //ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½Ð­ï¿½ï¿½
                 option.AccessKey = "root";
                 option.SecretKey = "Q*************************f";
                 option.IsEnableHttps = true;
@@ -45,10 +53,10 @@ namespace Sample.AspNetCore.Mvc
             });
 
             //aliyun oss
-            //Ìí¼ÓÃû³ÆÎª¡®aliyunoss¡¯µÄOSS¶ÔÏó´¢´æÅäÖÃÐÅÏ¢
-            services.AddOSSService("aliyunoss", option =>
+            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½aliyunossï¿½ï¿½ï¿½ï¿½OSSï¿½ï¿½ï¿½ó´¢´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
+            services.AddStorageService("aliyunoss", option =>
             {
-                option.Provider = OSSProvider.Aliyun;
+                option.Provider = StorageProvider.Aliyun;
                 option.Endpoint = "oss-cn-hangzhou.aliyuncs.com";
                 option.AccessKey = "L*********************U";
                 option.SecretKey = "D**************************M";
@@ -57,28 +65,28 @@ namespace Sample.AspNetCore.Mvc
             });
 
             //qcloud oss
-            //´ÓÅäÖÃÎÄ¼þÖÐ¼ÓÔØ½ÚµãÎª¡®OSSProvider¡¯µÄÅäÖÃÐÅÏ¢
-            services.AddOSSService("QCloud", "OSSProvider");
+            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½Ð¼ï¿½ï¿½Ø½Úµï¿½Îªï¿½ï¿½StorageProviderï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
+            services.AddStorageService("QCloud", "OSSProvider");
 
             //qiniu oss
-            //Ìí¼ÓÃû³ÆÎª¡®qiuniu¡¯µÄOSS¶ÔÏó´¢´æÅäÖÃÐÅÏ¢
-            services.AddOSSService("qiuniu", option =>
+            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½qiuniuï¿½ï¿½ï¿½ï¿½OSSï¿½ï¿½ï¿½ó´¢´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
+            services.AddStorageService("qiuniu", option =>
             {
-                option.Provider = OSSProvider.Qiniu;
-                option.Region = "CN_East";  //Ö§³ÖµÄÖµ£ºCN_East(»ª¶«)/CN_South(»ªÄÏ)/CN_North(»ª±±)/US_North(±±ÃÀ)/Asia_South(¶«ÄÏÑÇ)
+                option.Provider = StorageProvider.Qiniu;
+                option.Region = "CN_East";  //Ö§ï¿½Öµï¿½Öµï¿½ï¿½CN_East(ï¿½ï¿½ï¿½ï¿½)/CN_South(ï¿½ï¿½ï¿½ï¿½)/CN_North(ï¿½ï¿½ï¿½ï¿½)/US_North(ï¿½ï¿½ï¿½ï¿½)/Asia_South(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
                 option.AccessKey = "B****************************L";
                 option.SecretKey = "Z*************************************g";
                 option.IsEnableHttps = true;
                 option.IsEnableCache = true;
             });
 
-            //»ªÎªÔÆOBS
-            //Ìí¼ÓÃû³ÆÎª¡®huaweiobs¡¯µÄOSS¶ÔÏó´¢´æÅäÖÃÐÅÏ¢
-            //Endpoint²éÑ¯£ºhttps://developer.huaweicloud.com/endpoint?OBS
-            services.AddOSSService("huaweiobs", option =>
+            //ï¿½ï¿½Îªï¿½ï¿½OBS
+            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½huaweiobsï¿½ï¿½ï¿½ï¿½OSSï¿½ï¿½ï¿½ó´¢´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
+            //Endpointï¿½ï¿½Ñ¯ï¿½ï¿½https://developer.huaweicloud.com/endpoint?OBS
+            services.AddStorageService("huaweiobs", option =>
             {
-                option.Provider = OSSProvider.HuaweiCloud;
-                option.Endpoint = "obs.cn-southwest-2.myhuaweicloud.com"; //²»ÐèÒª´øÓÐÐ­Òé
+                option.Provider = StorageProvider.HuaweiCloud;
+                option.Endpoint = "obs.cn-southwest-2.myhuaweicloud.com"; //ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½Ð­ï¿½ï¿½
                 option.Region = "cn-southwest-2";
                 option.AccessKey = "R********************6";
                 option.SecretKey = "5*************************************c";
@@ -86,26 +94,26 @@ namespace Sample.AspNetCore.Mvc
                 option.IsEnableCache = true;
             });
 
-            //°Ù¶ÈÔÆBOS
-            //Ìí¼ÓÃû³ÆÎª¡®baidubos¡¯µÄOSS¶ÔÏó´¢´æÅäÖÃÐÅÏ¢
-            //Endpoint²éÑ¯£ºhttps://developer.huaweicloud.com/endpoint?OBS
-            services.AddOSSService("baidubos", option =>
+            //ï¿½Ù¶ï¿½ï¿½ï¿½BOS
+            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½baidubosï¿½ï¿½ï¿½ï¿½OSSï¿½ï¿½ï¿½ó´¢´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
+            //Endpointï¿½ï¿½Ñ¯ï¿½ï¿½https://developer.huaweicloud.com/endpoint?OBS
+            services.AddStorageService("baidubos", option =>
             {
-                option.Provider = OSSProvider.BaiduCloud;
-                option.Endpoint = "https://su.bcebos.com"; //ÐèÒª´øÓÐÐ­Òé
+                option.Provider = StorageProvider.BaiduCloud;
+                option.Endpoint = "https://su.bcebos.com"; //ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½Ð­ï¿½ï¿½
                 option.AccessKey = "A********************O";
                 option.SecretKey = "d********************d";
                 option.IsEnableHttps = true;
                 option.IsEnableCache = true;
             });
 
-            //ÌìÒíÔÆOOS
-            //Ìí¼ÓÃû³ÆÎª¡®ctyunoos¡¯µÄOSS¶ÔÏó´¢´æÅäÖÃÐÅÏ¢
-            //Endpoint²éÑ¯£ºhttps://www.ctyun.cn/document/10026693/10027878
-            services.AddOSSService("ctyunoos", option =>
+            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½OOS
+            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ctyunoosï¿½ï¿½ï¿½ï¿½OSSï¿½ï¿½ï¿½ó´¢´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
+            //Endpointï¿½ï¿½Ñ¯ï¿½ï¿½https://www.ctyun.cn/document/10026693/10027878
+            services.AddStorageService("ctyunoos", option =>
             {
-                option.Provider = OSSProvider.Ctyun;
-                option.Endpoint = "oos-sdqd.ctyunapi.cn"; //²»ÐèÒª´øÓÐÐ­Òé
+                option.Provider = StorageProvider.Ctyun;
+                option.Endpoint = "oos-sdqd.ctyunapi.cn"; //ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½Ð­ï¿½ï¿½
                 option.AccessKey = "6********************6";
                 option.SecretKey = "c********************5";
                 option.IsEnableHttps = true;

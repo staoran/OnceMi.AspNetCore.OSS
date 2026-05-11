@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <PackageId>EasyLink.Storage.CtyunOOS</PackageId>
+    <AssemblyName>EasyLink.Storage.CtyunOOS</AssemblyName>
+    <RootNamespace>EasyLink.Storage.CtyunOOS</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EasyLink.Storage\EasyLink.Storage.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\EasyLink.Storage\Services\CtyunOSSService.cs" Link="Services\CtyunOSSService.cs" />
+    <Compile Include="..\EasyLink.Storage\Interface\Service\ICtyunOSSService.cs" Link="Interface\Service\ICtyunOSSService.cs" />
+    <Compile Include="..\EasyLink.Storage\Models\Ctyun\AccessControlPolicy.cs" Link="Models\Ctyun\AccessControlPolicy.cs" />
+    <Compile Include="..\EasyLink.Storage\Models\Ctyun\BucketConfiguration.cs" Link="Models\Ctyun\BucketConfiguration.cs" />
+    <Compile Include="..\EasyLink.Storage\Models\Ctyun\ListAllMyBucketsResult.cs" Link="Models\Ctyun\ListAllMyBucketsResult.cs" />
+    <Compile Include="..\EasyLink.Storage\Models\Ctyun\ListBucketResult.cs" Link="Models\Ctyun\ListBucketResult.cs" />
+    <Compile Include="..\EasyLink.Storage\SDK\Ctyun\**\*.cs" LinkBase="SDK\Ctyun" />
+  </ItemGroup>
+</Project>

@@ -1,6 +1,6 @@
-﻿using FreeRedis;
-using OnceMi.AspNetCore.OSS;
-using OnceMi.Framework.Util.Json;
+using FreeRedis;
+using EasyLink.Storage;
+using LegacyJsonUtil = OnceMi.Framework.Util.Json.JsonUtil;
 using System;
 
 namespace Sample.AspNetCore.Mvc.CacheProviders
@@ -24,7 +24,7 @@ namespace Sample.AspNetCore.Mvc.CacheProviders
             {
                 return default(T);
             }
-            return JsonUtil.DeserializeStringToObject<T>(val);
+            return LegacyJsonUtil.DeserializeStringToObject<T>(val);
         }
 
         public void Remove(string key)
@@ -34,7 +34,7 @@ namespace Sample.AspNetCore.Mvc.CacheProviders
 
         public void Set<T>(string key, T value, TimeSpan ts) where T : class
         {
-            string stringVal = JsonUtil.SerializeToString(value);
+            string stringVal = LegacyJsonUtil.SerializeToString(value);
             _cache.Set(key, stringVal, ts);
         }
     }

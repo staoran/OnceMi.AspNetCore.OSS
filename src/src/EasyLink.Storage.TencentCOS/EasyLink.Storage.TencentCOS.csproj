@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <PackageId>EasyLink.Storage.TencentCOS</PackageId>
+    <AssemblyName>EasyLink.Storage.TencentCOS</AssemblyName>
+    <RootNamespace>EasyLink.Storage.TencentCOS</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EasyLink.Storage\EasyLink.Storage.csproj" />
+    <PackageReference Include="Tencent.QCloud.Cos.Sdk" Version="5.4.51" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\EasyLink.Storage\Services\QCloudOSSService.cs" Link="Services\QCloudOSSService.cs" />
+    <Compile Include="..\EasyLink.Storage\Interface\Service\IQCloudOSSService.cs" Link="Interface\Service\IQCloudOSSService.cs" />
+  </ItemGroup>
+</Project>

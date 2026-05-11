@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OnceMi.AspNetCore.OSS;
-using OnceMi.AspNetCore.OSS.SDK.Ctyun;
+using EasyLink.Storage;
+using EasyLink.Storage.SDK.Ctyun;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <Company>OnceMi</Company>
+    <Authors>OnceMi contributors</Authors>
+    <Version>2.0.0</Version>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/staoran/OnceMi.AspNetCore.OSS</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/staoran/OnceMi.AspNetCore.OSS</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>easylink;storage;object-storage;oss;provider</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsPackable)' != 'false'">
+    <None Include="$(MSBuildThisFileDirectory)..\..\LICENSE" Pack="True" PackagePath="" Link="LICENSE" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\README.md" Pack="True" PackagePath="" Link="README.md" />
+  </ItemGroup>
+</Project>

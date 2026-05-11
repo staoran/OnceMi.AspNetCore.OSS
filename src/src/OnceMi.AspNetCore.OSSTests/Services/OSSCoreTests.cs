@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace OnceMi.AspNetCore.OSS.Tests
+namespace EasyLink.Storage.Tests
 {
     [TestClass]
     public class OSSOptionsTests
@@ -80,7 +80,7 @@ namespace OnceMi.AspNetCore.OSS.Tests
                 cache,
                 new OSSOptions
                 {
-                    Provider = OSSProvider.Minio,
+                    Provider = StorageProvider.Minio,
                     IsEnableCache = isEnableCache
                 });
         }
