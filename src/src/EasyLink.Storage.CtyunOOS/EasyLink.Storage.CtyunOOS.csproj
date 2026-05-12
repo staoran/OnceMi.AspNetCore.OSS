@@ -4,6 +4,10 @@
     <PackageId>EasyLink.Storage.CtyunOOS</PackageId>
     <AssemblyName>EasyLink.Storage.CtyunOOS</AssemblyName>
     <RootNamespace>EasyLink.Storage.CtyunOOS</RootNamespace>
+    <Title>EasyLink.Storage.CtyunOOS</Title>
+    <Description>EasyLink.Storage 的天翼云 OOS 经典版 provider 包，提供 Ctyun OOS 对象存储实现。</Description>
+    <PackageTags>easylink;storage;object-storage;oss;provider;ctyun;ctyun-oos</PackageTags>
+    <PackageReleaseNotes>2.0.0: Provider package split from EasyLink.Storage. Install with EasyLink.Storage to enable Ctyun OOS object storage.</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>

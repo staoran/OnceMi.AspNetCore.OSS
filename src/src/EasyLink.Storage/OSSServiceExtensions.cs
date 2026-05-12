@@ -8,8 +8,18 @@ using Microsoft.Extensions.Options;
 
 namespace EasyLink.Storage
 {
+    /// <summary>
+    /// Service collection extensions for registering EasyLink.Storage services and providers.
+    /// </summary>
     public static class OSSServiceExtensions
     {
+        /// <summary>
+        /// Registers a provider factory for the specified storage provider.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <param name="provider">The provider type handled by the factory.</param>
+        /// <param name="factory">The factory that creates the provider service.</param>
+        /// <returns>The same service collection.</returns>
         public static IServiceCollection AddStorageProvider(this IServiceCollection services, StorageProvider provider, StorageProviderFactory factory)
         {
             if (services == null)
@@ -25,6 +35,13 @@ namespace EasyLink.Storage
             return services;
         }
 
+        /// <summary>
+        /// Registers a provider factory that can resolve additional services from the application service provider.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <param name="provider">The provider type handled by the factory.</param>
+        /// <param name="factory">The factory that creates the provider service.</param>
+        /// <returns>The same service collection.</returns>
         public static IServiceCollection AddStorageProvider(this IServiceCollection services, StorageProvider provider, ServiceStorageProviderFactory factory)
         {
             if (services == null)
@@ -40,32 +57,57 @@ namespace EasyLink.Storage
             return services;
         }
 
+        /// <summary>
+        /// Adds the default named storage service from a configuration section.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <param name="key">The configuration section key.</param>
+        /// <returns>The same service collection.</returns>
         public static IServiceCollection AddStorageService(this IServiceCollection services, string key)
         {
             return services.AddStorageService(DefaultOptionName.Name, key);
         }
 
+        /// <summary>
+        /// Adds a named storage service from a configuration section.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <param name="name">The storage service name.</param>
+        /// <param name="key">The configuration section key.</param>
+        /// <returns>The same service collection.</returns>
         public static IServiceCollection AddStorageService(this IServiceCollection services, string name, string key)
         {
             return services.AddOSSService(name, key);
         }
 
+        /// <summary>
+        /// Adds the default named storage service using code-based options.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <param name="option">The options configuration action.</param>
+        /// <returns>The same service collection.</returns>
         public static IServiceCollection AddStorageService(this IServiceCollection services, Action<OSSOptions> option)
         {
             return services.AddOSSService(option);
         }
 
+        /// <summary>
+        /// Adds a named storage service using code-based options.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <param name="name">The storage service name.</param>
+        /// <param name="option">The options configuration action.</param>
+        /// <returns>The same service collection.</returns>
         public static IServiceCollection AddStorageService(this IServiceCollection services, string name, Action<OSSOptions> option)
         {
             return services.AddOSSService(name, option);
         }
 
         /// <summary>
-        /// �������ļ��м���Ĭ������
+        /// Adds the default named OSS service from a configuration section.
         /// </summary>
         /// <param name="services"></param>
-        /// <param name="configuration"></param>
-        /// <param name="key"></param>
+        /// <param name="key">The configuration section key.</param>
         /// <returns></returns>
         public static IServiceCollection AddOSSService(this IServiceCollection services, string key)
         {
@@ -73,12 +115,11 @@ namespace EasyLink.Storage
         }
 
         /// <summary>
-        /// �������ļ��м���
+        /// Adds a named OSS service from a configuration section.
         /// </summary>
         /// <param name="services"></param>
-        /// <param name="name"></param>
-        /// <param name="configuration"></param>
-        /// <param name="key"></param>
+        /// <param name="name">The OSS service name.</param>
+        /// <param name="key">The configuration section key.</param>
         /// <returns></returns>
         public static IServiceCollection AddOSSService(this IServiceCollection services, string name, string key)
         {
@@ -113,7 +154,7 @@ namespace EasyLink.Storage
         }
 
         /// <summary>
-        /// ����Ĭ������
+        /// Adds the default named OSS service using code-based options.
         /// </summary>
         public static IServiceCollection AddOSSService(this IServiceCollection services, Action<OSSOptions> option)
         {
@@ -121,7 +162,7 @@ namespace EasyLink.Storage
         }
 
         /// <summary>
-        /// ������������
+        /// Adds a named OSS service using code-based options.
         /// </summary>
         public static IServiceCollection AddOSSService(this IServiceCollection services, string name, Action<OSSOptions> option)
         {
@@ -130,10 +171,10 @@ namespace EasyLink.Storage
                 name = DefaultOptionName.Name;
             }
             services.Configure(name, option);
-            //����IOSSServiceFactoryֻ��Ҫע��һ��
+            // The factory only needs to be registered once.
             if (!services.Any(p => p.ServiceType == typeof(IOSSServiceFactory)))
             {
-                //���δע��ICacheProvider��Ĭ��ע��MemoryCacheProvider
+                // Use the default memory cache provider when the application has not registered one.
                 if (!services.Any(p => p.ServiceType == typeof(ICacheProvider)))
                 {
                     services.AddMemoryCache();

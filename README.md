@@ -1,6 +1,6 @@
 
 # EasyLink.Storage
-ASP.NET Core 对象存储扩展包族。核心包是 `EasyLink.Storage`，各厂商实现拆为独立 provider 包，支持 Minio、阿里云 OSS、腾讯云 COS、七牛 Kodo、华为 OBS、百度 BOS、天翼 OOS 经典版。主库目标框架为 .NET Standard 2.1，示例和测试项目以 .NET 10 作为当前构建基线。
+.NET 对象存储扩展包族。核心包是 EasyLink.Storage，各厂商实现拆为独立 provider 包，支持 Minio、阿里云 OSS、腾讯云 COS、七牛 Kodo、华为 OBS、百度 BOS、天翼 OOS 经典版。主库目标框架为 .NET Standard 2.1，示例和测试项目以 .NET 10 作为当前构建基线。
 
 ## 迁移提示
 - 旧包 `OnceMi.AspNetCore.OSS` 迁移到新包族 `EasyLink.Storage.*`。
@@ -18,13 +18,13 @@ ASP.NET Core 对象存储扩展包族。核心包是 `EasyLink.Storage`，各厂
 
 ## 已知问题
 1. Minio通过Nginx发反向代理后直接通过域名（不加端口）调用存在问题，应该是Minio本身问题，有兴趣的可以自行测试研究，具体信息我已经发布在Issue中。
-2. ~~腾讯云`PutObjectAsync`流式上传接口，有非常低的概率会抛“储存桶不存在的异常”，应该是腾讯云自身的原因，具体原因未知。~~ PS：最近没有复现了
+2. ~~腾讯云 `PutObjectAsync` 流式上传接口，有非常低的概率会抛“存储桶不存在的异常”，应该是腾讯云自身的原因，具体原因未知。~~ PS：最近没有复现了
 
 ## 构建与发布准备
-- 当前仓库使用.NET 10 SDK执行`restore`、`build`、`test`和`pack`。
-- GitHub Actions会上传`.nupkg`构建产物，并提供NuGet Trusted Publishing/OIDC登录验证入口。
-- 当前阶段只准备发布能力，不真实发布NuGet包；fork仓库没有原`OnceMi.AspNetCore.OSS`包的发布权限。
-- Trusted Publishing需要在NuGet.org中配置仓库 owner、repository、workflow 文件名和可选 environment；本仓库不使用长期`NUGET_API_KEY`作为主发布路径。
+- 当前仓库使用 .NET 10 SDK 执行 `restore`、`build`、`test` 和 `pack`。
+- `.github/workflows/ci.yml` 是主入口：推送 `v*.*.*` tag 时构建、测试、打包并发布全部包；手动运行时可选择要打包和发布的核心包或 provider 包。
+- `.github/workflows/publish-nuget.yml` 是手动备用发布入口，可按包选择发布，避免 tag 发布时重复推包。
+- Trusted Publishing 需要在 NuGet.org 中配置仓库 owner、repository、workflow 文件名和可选 environment；本仓库不使用长期 `NUGET_API_KEY` 作为主发布路径。
 
 ## 如何使用
 1、安装核心包和所需 provider 包。
@@ -33,10 +33,9 @@ Cmd install：
 dotnet add package EasyLink.Storage
 dotnet add package EasyLink.Storage.Minio
 ```
-Nuget： [![](https://img.shields.io/nuget/v/EasyLink.Storage.svg)](https://www.nuget.org/packages/EasyLink.Storage)
+NuGet： [![](https://img.shields.io/nuget/v/EasyLink.Storage.svg)](https://www.nuget.org/packages/EasyLink.Storage)
 
-2、在`Startup.cs`中配置
-You need to configure OSSService in your Startup.cs：
+2、在 `Startup.cs` 中注册 provider 并配置 StorageService：
 
 ```csharp
 services.AddMinioStorageProvider();
@@ -63,13 +62,13 @@ services.AddTencentCOSStorageProvider();
 services.AddStorageService("QCloud", "OSSProvider");
 ```
 
-可注入多个OSSService，不同的Service用名称来区分。需要注意的是，腾讯云COS中配置节点Endpoint表示AppId。
+可注册多个命名 StorageService，不同的服务用名称来区分。需要注意的是，腾讯云 COS 中配置节点 `Endpoint` 表示 AppId。
 
 appsettings.json配置文件实例：
 ```csharp
 {
   "OSSProvider": {
-    "Provider": "QCloud", //枚举值支持：Minio/Aliyun/QCloud
+    "Provider": "QCloud", //枚举值支持：Minio/Aliyun/QCloud/Qiniu/HuaweiCloud/BaiduCloud/Ctyun
     "Endpoint": "你的AppId", //腾讯云中表示AppId
     "Region": "ap-chengdu",  //地域
     "AccessKey": "A****************************z",
@@ -103,7 +102,7 @@ public class HomeController : Controller
 
 ```csharp
 /// <summary>
-/// 获取IOSSServiceFactory，根据名称创建对应的OSS服务
+/// 获取 IOSSServiceFactory，根据名称创建对应的对象存储服务
 /// </summary>
 public class QCloudController : Controller
 {
@@ -140,13 +139,13 @@ public async Task<IActionResult> ListBuckets()
 
 |  名称 |  类型  | 说明  | 案例  |  备注 |
 | :------------ |:------------ | :------------ | :------------ | :------------ |
-| Provider  | 枚举  | OSS提供者  |  Minio | 允许值：Minio/Aliyun/QCloud/Qiniu/HuaweiCloud |
+| Provider  | 枚举  | 对象存储提供者  |  Minio | 允许值：Minio/Aliyun/QCloud/Qiniu/HuaweiCloud/BaiduCloud/Ctyun |
 | Endpoint  | string  | 节点  | oss-cn-hangzhou.aliyuncs.com  |  在腾讯云OSS中表示AppId  |
 | AccessKey  | string  | AccessKey  | F...............s  |    |
 | SecretKey  | string  | SecretKey  | v...............d  |    |
 | Region  | string  | 地域  | ap-chengdu  |    |
 | IsEnableHttps  | bool  | 是否启用HTTPS  |  true  |  建议启用  |
-| IsEnableCache  | bool  | 是否启用缓存  |  true  |  启用后将缓存签名URL，以减少请求次数  |
+| IsEnableCache  | bool  | 是否启用缓存  |  true  |  启用后将缓存签名 URL，以减少请求次数  |
 
 #### Endpoint查询
 | Provider  | Endpoint  | Remark  |
@@ -156,6 +155,8 @@ public async Task<IActionResult> ListBuckets()
 | QCloud  | -  | 腾讯云没有Endpoint，此配置项表示AppId  |
 | Qiniu  | https://developer.qiniu.com/kodo/4088/s3-access-domainname  | -  |
 | HuaweiCloud  | https://support.huaweicloud.com/productdesc-obs/obs_03_0152.html  | -  |
+| BaiduCloud  | https://cloud.baidu.com/doc/BOS/s/8jwvyqdar  | -  |
+| Ctyun  | https://www.ctyun.cn/document/10026693/10027878  | -  |
 
 
 ### API参考
@@ -163,46 +164,46 @@ public async Task<IActionResult> ListBuckets()
 ##### BucketExistsAsync
 `Task<bool> BucketExistsAsync(string bucketName);`
 
-判断该储存桶是否存在。
+判断该存储桶是否存在。
 
 ##### CreateBucketAsync
 `Task<bool> CreateBucketAsync(string bucketName);`
 
-创建一个储存桶。如果当前储存桶存在，将抛出异常`BucketExistException`。
+创建一个存储桶。如果当前存储桶存在，将抛出异常 `BucketExistException`。
 
 ##### ListBucketsAsync
-`Task<bool> ListBucketsAsync();`
+`Task<List<Bucket>> ListBucketsAsync();`
 
-列出当前账号下允许访问的所有储存桶。
+列出当前账号下允许访问的所有存储桶。
 
 ##### RemoveBucketAsync
 `Task<bool> RemoveBucketAsync(string bucketName);`
 
-移除当前储存桶。移除储存桶之前，请先移除储存桶中所有的对象和对象碎片文件。
+移除当前存储桶。移除存储桶之前，请先移除存储桶中所有的对象和对象碎片文件。
 
 ##### SetBucketAclAsync
 `Task<bool> SetBucketAclAsync(string bucketName, AccessMode mode);`
 
-设置储存桶的外部访问权限，支持的权限有：私有、公共读、公共读写。返回设置结果（True or False）。
+设置存储桶的外部访问权限，支持的权限有：私有、公共读、公共读写。返回设置结果（True or False）。
 
 ##### GetBucketAclAsync
 `Task<AccessMode> GetBucketAclAsync(string bucketName);`
 
-获取储存桶的外部访问权限。
+获取存储桶的外部访问权限。
 
 ##### ObjectsExistsAsync
 `Task<bool> ObjectsExistsAsync(string bucketName, string objectName);`
 
-获取指定储存桶中指定对象是否存在。
+获取指定存储桶中指定对象是否存在。
 
 ##### ListObjectsAsync
 `Task<List<Item>> ListObjectsAsync(string bucketName, string prefix = null);`
 
-列出当前储存桶所有文件。如果储存桶中文件较多，可以需要较长的执行时间，因此推荐填写prefix参数，prefix会根据文件名称进行前端匹配。比如输出abc，则列出全部abc开头的文件或目录。
+列出当前存储桶所有文件。如果存储桶中文件较多，可能需要较长的执行时间，因此推荐填写 `prefix` 参数。`prefix` 会根据文件名称进行前缀匹配，例如输入 `abc`，则列出全部 `abc` 开头的文件或目录。
 
 ##### GetObjectAsync
 获取文件的数据流。
-Methos 1:
+Method 1:
 
 `Task GetObjectAsync(string bucketName, string objectName, Action<Stream> callback, CancellationToken cancellationToken = default);`
 
@@ -226,7 +227,7 @@ catch (Exception ex)
 }
 ```
 
-Methos 2:
+Method 2:
 
 `Task GetObjectAsync(string bucketName, string objectName, string fileName, CancellationToken cancellationToken = default);`
 
@@ -245,7 +246,7 @@ catch (Exception ex)
 
 ##### PutObjectAsync
 
-上传文件。支持流式上传和上传本地文件。腾讯云不止流式上传，为了兼容接口，采用先将流加载到内存中再上传。
+上传文件。支持流式上传和上传本地文件。腾讯云 COS 不支持直接流式上传，为了兼容接口，采用先将流加载到内存中再上传。
 
 Method 1(流式上传):
 
@@ -294,62 +295,62 @@ Task<ItemMeta> GetObjectMetadataAsync(string bucketName
     , DateTime? modifiedSince = null);
 ```
 
-获取对象的元数据，或根据VersionId获取对象元数据。需要注意的是，在阿里云对象存储和腾讯云对象存储中不支持matchEtag和modifiedSincecan参数。
+获取对象的元数据，或根据 VersionId 获取对象元数据。需要注意的是，阿里云 OSS 和腾讯云 COS 不支持 `matchEtag` 和 `modifiedSince` 参数。
 
 ##### CopyObjectAsync
 `Task<bool> CopyObjectAsync(string bucketName, string objectName, string destBucketName, string destObjectName = null);`
 
-在储存桶之间复制对象。
+在存储桶之间复制对象。
 
 ##### RemoveObjectAsync
 `Task<bool> RemoveObjectAsync(string bucketName, string objectName);`
 
-删除储存桶中指定对象。
+删除存储桶中指定对象。
 
 `Task<bool> RemoveObjectAsync(string bucketName, List<string> objectNames);`
 
-删除储存桶中多个对象。
+删除存储桶中多个对象。
 
 ##### RemovePresignedUrlCache
-`void RemovePresignedUrlCache(string bucketName, string objectName);`
+`Task RemovePresignedUrlCache(string bucketName, string objectName);`
 
-清除对象生成的签名URL缓存。在未开启签名URL缓存的情况下，此功能无效。
+清除对象生成的签名 URL 缓存。在未开启签名 URL 缓存的情况下，此功能无效。
 
 ##### PresignedGetObjectAsync
 `Task<string> PresignedGetObjectAsync(string bucketName, string objectName, int expiresInt);`
 
-生成一个给HTTP GET请求用的presigned URL。浏览器/移动端的客户端可以用这个URL进行下载，即使其所在的存储桶是私有的。这个presigned URL可以设置一个失效时间，且不能超过7天。
-如果该对象拥有公共读权限或该对象继承了储存桶的公共读权限，将生成永久下载链接。
-如果Option参数中设置为IsEnableCache为True，将会在有效时间中缓存生成的签名链接，同时也推荐开启此功能，将大大降低请求的频率。
+生成一个给 HTTP GET 请求使用的预签名 URL。浏览器或移动端客户端可以用这个 URL 进行下载，即使其所在的存储桶是私有的。这个预签名 URL 可以设置一个失效时间，且不能超过 7 天。
+如果该对象拥有公共读权限或该对象继承了存储桶的公共读权限，将生成永久下载链接。
+如果 `Option` 参数中设置 `IsEnableCache` 为 `true`，将会在有效时间中缓存生成的签名链接，同时也推荐开启此功能，将大大降低请求的频率。
 
 ##### PresignedPutObjectAsync
 `Task<string> PresignedPutObjectAsync(string bucketName, string objectName, int expiresInt);`
 
-生成一个给HTTP PUT请求用的presigned URL。浏览器/移动端的客户端可以用这个URL进行上传，即使其所在的存储桶是私有的。这个presigned URL可以设置一个失效时间，且不能超过7天。
-如果Option参数中设置为IsEnableCache为True，将会在有效时间中缓存生成的签名链接，同时也推荐开启此功能，将大大降低请求的频率。
-注意：七牛云、天翼云对象储存不支持此操作！
+生成一个给 HTTP PUT 请求使用的预签名 URL。浏览器或移动端客户端可以用这个 URL 进行上传，即使其所在的存储桶是私有的。这个预签名 URL 可以设置一个失效时间，且不能超过 7 天。
+如果 `Option` 参数中设置 `IsEnableCache` 为 `true`，将会在有效时间中缓存生成的签名链接，同时也推荐开启此功能，将大大降低请求的频率。
+注意：七牛云、天翼云对象存储不支持此操作！
 
 ##### SetObjectAclAsync
 `Task<bool> SetObjectAclAsync(string bucketName, string objectName, AccessMode mode);`
 
-设置对象的访问权限，默认文件的访问权限是继承储存桶的。但是可以单独通过此API为对象设置访问权限。
-注意：七牛云、百度云、天翼云对象储存不支持此操作！
+设置对象的访问权限，默认文件的访问权限继承存储桶设置。可以单独通过此 API 为对象设置访问权限。
+注意：七牛云、百度云、天翼云对象存储不支持此操作！
 
 ##### GetObjectAclAsync
 `Task<AccessMode> GetObjectAclAsync(string bucketName, string objectName);`
 
-获取对象的储存桶权限，如果是该权限继承自储存桶，获取的可能是储存桶对当前对象的访问权限。
-注意：七牛云、百度云、天翼云对象储存不支持此操作！
+获取对象的访问权限。如果该权限继承自存储桶，获取的可能是存储桶对当前对象的访问权限。
+注意：七牛云、百度云、天翼云对象存储不支持此操作！
 
 ##### RemoveObjectAclAsync
 `Task<AccessMode> RemoveObjectAclAsync(string bucketName, string objectName);`
 
 清除该对象的访问权限或将其恢复至继承权限。
-注意：七牛云、天翼云对象储存不支持此操作！
+注意：七牛云、天翼云对象存储不支持此操作！
 
 ### 替换内部缓存提供器
 
-如果启用了缓存来缓存签名URL，可以提高单个文件的签名URL请求效率。由于1.1.3之前版本使用的MemoryCache，有三个问题：
+如果启用了缓存来缓存签名 URL，可以提高单个文件的签名 URL 请求效率。由于 1.1.3 之前版本使用的是 MemoryCache，有三个问题：
 1、不支持分布式，只能单机缓存
 2、大量占用应用服务器内存
 3、应用重启之后，之前的缓存丢失
@@ -395,20 +396,18 @@ services.TryAddSingleton<RedisClient>(client);
 services.TryAddSingleton<ICacheProvider, RedisCacheProvider>();
 ```
 
-## Dependencies
+## 包与依赖
 
-1. Aliyun.OSS.SDK.NetCore
-2. BceSdkDotNetCore
-3. Microsoft.Extensions.Caching.Memory
-4. Microsoft.Extensions.Configuration.Binder
-5. Microsoft.Extensions.DependencyInjection
-6. Microsoft.Extensions.Options
-7. Tencent.QCloud.Cos.Sdk
-8. Minio
-9. Qiniu
-10. https://github.com/huaweicloud/huaweicloud-sdk-dotnet-obs
+- `EasyLink.Storage`：核心抽象、DI 注册、配置模型、公共模型、缓存抽象和默认内存缓存，不直接依赖任何厂商 SDK。
+- `EasyLink.Storage.Minio`：Minio / S3 兼容对象存储 provider，依赖 `Minio`。
+- `EasyLink.Storage.AliyunOSS`：阿里云 OSS provider，依赖 `Aliyun.OSS.SDK.NetCore`。
+- `EasyLink.Storage.TencentCOS`：腾讯云 COS provider，依赖 `Tencent.QCloud.Cos.Sdk`。
+- `EasyLink.Storage.QiniuKodo`：七牛 Kodo provider，依赖 `Qiniu`。
+- `EasyLink.Storage.HuaweiOBS`：华为 OBS provider，使用仓库内嵌 OBS SDK 适配代码。
+- `EasyLink.Storage.BaiduBOS`：百度 BOS provider，依赖 `BceSdkDotNetCore`。
+- `EasyLink.Storage.CtyunOOS`：天翼云 OOS 经典版 provider，使用仓库内置 HTTP/签名适配代码。
 
 ## To do list
-~~1. 修改签名URL过期策略为滑动过期策略~~
+~~1. 修改签名 URL 过期策略为滑动过期策略~~
 2. 文件分页加载
 3. 文件分片上传

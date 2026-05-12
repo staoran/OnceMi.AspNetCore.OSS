@@ -4,6 +4,10 @@
     <PackageId>EasyLink.Storage.Minio</PackageId>
     <AssemblyName>EasyLink.Storage.Minio</AssemblyName>
     <RootNamespace>EasyLink.Storage.Minio</RootNamespace>
+    <Title>EasyLink.Storage.Minio</Title>
+    <Description>EasyLink.Storage 的 Minio provider 包，提供 Minio 和 S3 兼容对象存储实现。</Description>
+    <PackageTags>easylink;storage;object-storage;oss;provider;minio;s3</PackageTags>
+    <PackageReleaseNotes>2.0.0: Provider package split from EasyLink.Storage. Install with EasyLink.Storage to enable Minio object storage.</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>

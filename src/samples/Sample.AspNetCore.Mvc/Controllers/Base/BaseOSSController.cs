@@ -58,7 +58,7 @@ namespace Sample.AspNetCore.Mvc.Controllers
                 return Json(new ResultObject()
                 {
                     Status = result,
-                    Message = result ? $"创建储存桶'{_bucketName}'成功。" : $"创建储存桶'{_bucketName}'失败。",
+                    Message = result ? $"创建存储桶'{_bucketName}'成功。" : $"创建存储桶'{_bucketName}'失败。",
                 });
             }
             catch (Exception ex)
@@ -79,7 +79,7 @@ namespace Sample.AspNetCore.Mvc.Controllers
                 return Json(new ResultObject()
                 {
                     Status = result,
-                    Message = result ? $"移除储存桶'{_bucketName}'成功。" : $"移除储存桶'{_bucketName}'失败。",
+                    Message = result ? $"移除存储桶'{_bucketName}'成功。" : $"移除存储桶'{_bucketName}'失败。",
                 });
             }
             catch (Exception ex)

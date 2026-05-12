@@ -4,6 +4,10 @@
     <PackageId>EasyLink.Storage.AliyunOSS</PackageId>
     <AssemblyName>EasyLink.Storage.AliyunOSS</AssemblyName>
     <RootNamespace>EasyLink.Storage.AliyunOSS</RootNamespace>
+    <Title>EasyLink.Storage.AliyunOSS</Title>
+    <Description>EasyLink.Storage 的阿里云 OSS provider 包，提供 Aliyun OSS 对象存储实现。</Description>
+    <PackageTags>easylink;storage;object-storage;oss;provider;aliyun;aliyun-oss</PackageTags>
+    <PackageReleaseNotes>2.0.0: Provider package split from EasyLink.Storage. Install with EasyLink.Storage to enable Aliyun OSS object storage.</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>

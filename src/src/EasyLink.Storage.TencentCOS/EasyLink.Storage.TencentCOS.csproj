@@ -4,6 +4,10 @@
     <PackageId>EasyLink.Storage.TencentCOS</PackageId>
     <AssemblyName>EasyLink.Storage.TencentCOS</AssemblyName>
     <RootNamespace>EasyLink.Storage.TencentCOS</RootNamespace>
+    <Title>EasyLink.Storage.TencentCOS</Title>
+    <Description>EasyLink.Storage 的腾讯云 COS provider 包，提供 Tencent COS 对象存储实现。</Description>
+    <PackageTags>easylink;storage;object-storage;oss;provider;tencent;tencent-cos;qcloud</PackageTags>
+    <PackageReleaseNotes>2.0.0: Provider package split from EasyLink.Storage. Install with EasyLink.Storage to enable Tencent COS object storage.</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>

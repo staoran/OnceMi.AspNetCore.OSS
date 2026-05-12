@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace EasyLink.Storage
 {
+    /// <summary>
+    /// Tencent COS provider-specific operations.
+    /// </summary>
     public interface IQCloudOSSService : IOSSService
     {
     }

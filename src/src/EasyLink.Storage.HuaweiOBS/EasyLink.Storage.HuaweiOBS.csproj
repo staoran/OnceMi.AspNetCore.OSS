@@ -4,6 +4,10 @@
     <PackageId>EasyLink.Storage.HuaweiOBS</PackageId>
     <AssemblyName>EasyLink.Storage.HuaweiOBS</AssemblyName>
     <RootNamespace>EasyLink.Storage.HuaweiOBS</RootNamespace>
+    <Title>EasyLink.Storage.HuaweiOBS</Title>
+    <Description>EasyLink.Storage 的华为 OBS provider 包，提供 Huawei OBS 对象存储实现。</Description>
+    <PackageTags>easylink;storage;object-storage;oss;provider;huawei;huawei-obs</PackageTags>
+    <PackageReleaseNotes>2.0.0: Provider package split from EasyLink.Storage. Install with EasyLink.Storage to enable Huawei OBS object storage.</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>

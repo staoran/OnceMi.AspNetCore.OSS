@@ -187,7 +187,7 @@ namespace EasyLink.Storage
         }
 
         /// <summary>
-        /// 设置储存桶的访问权限
+        /// 设置存储桶的访问权限
         /// </summary>
         /// <param name="bucketName"></param>
         /// <param name="objectName"></param>
@@ -199,7 +199,7 @@ namespace EasyLink.Storage
         }
 
         /// <summary>
-        /// 获取储存桶的访问权限
+        /// 获取存储桶的访问权限
         /// </summary>
         /// <param name="bucketName"></param>
         /// <param name="objectName"></param>

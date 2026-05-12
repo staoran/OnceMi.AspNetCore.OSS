@@ -672,7 +672,7 @@ namespace EasyLink.Storage
                 && result.responseHeaders["x-cos-acl"].Count > 0
                 && result.responseHeaders["x-cos-acl"][0].Equals("default"))
             {
-                //继承权限,获取储存桶权限
+                //继承权限,获取存储桶权限
                 AccessMode bucketMode = await GetBucketAclAsync(bucketName);
                 switch (bucketMode)
                 {

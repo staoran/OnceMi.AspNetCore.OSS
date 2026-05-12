@@ -78,7 +78,7 @@ namespace EasyLink.Storage
         /// <summary>
         /// 设置桶存储类型
         /// </summary>
-        /// <param name="bucketName">储存桶名称</param>
+        /// <param name="bucketName">存储桶名称</param>
         /// <param name="type">类型</param>
         /// <returns></returns>
         /// <remarks>

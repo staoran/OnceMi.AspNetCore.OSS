@@ -4,6 +4,10 @@
     <PackageId>EasyLink.Storage.QiniuKodo</PackageId>
     <AssemblyName>EasyLink.Storage.QiniuKodo</AssemblyName>
     <RootNamespace>EasyLink.Storage.QiniuKodo</RootNamespace>
+    <Title>EasyLink.Storage.QiniuKodo</Title>
+    <Description>EasyLink.Storage 的七牛 Kodo provider 包，提供 Qiniu Kodo 对象存储实现。</Description>
+    <PackageTags>easylink;storage;object-storage;oss;provider;qiniu;kodo</PackageTags>
+    <PackageReleaseNotes>2.0.0: Provider package split from EasyLink.Storage. Install with EasyLink.Storage to enable Qiniu Kodo object storage.</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>

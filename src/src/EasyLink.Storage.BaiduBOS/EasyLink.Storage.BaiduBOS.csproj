@@ -4,6 +4,10 @@
     <PackageId>EasyLink.Storage.BaiduBOS</PackageId>
     <AssemblyName>EasyLink.Storage.BaiduBOS</AssemblyName>
     <RootNamespace>EasyLink.Storage.BaiduBOS</RootNamespace>
+    <Title>EasyLink.Storage.BaiduBOS</Title>
+    <Description>EasyLink.Storage 的百度 BOS provider 包，提供 Baidu BOS 对象存储实现。</Description>
+    <PackageTags>easylink;storage;object-storage;oss;provider;baidu;baidu-bos</PackageTags>
+    <PackageReleaseNotes>2.0.0: Provider package split from EasyLink.Storage. Install with EasyLink.Storage to enable Baidu BOS object storage.</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>

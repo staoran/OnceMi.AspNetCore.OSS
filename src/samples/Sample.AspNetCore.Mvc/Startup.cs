@@ -27,7 +27,7 @@ namespace Sample.AspNetCore.Mvc
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //ʹ��Redis���滻Ĭ�ϵĻ���ʵ��
+            //使用 Redis 替换默认缓存实现
             var client = new RedisClient("127.0.0.1:6379,password=,ConnectTimeout=3000,defaultdatabase=0");
             services.TryAddSingleton<RedisClient>(client);
             services.TryAddSingleton<ICacheProvider, RedisCacheProvider>();
@@ -41,11 +41,11 @@ namespace Sample.AspNetCore.Mvc
             services.AddCtyunOOSStorageProvider();
 
             //default minio
-            //����Ĭ�϶��󴢴�������Ϣ
+            //添加默认对象存储配置信息
             services.AddStorageService(option =>
             {
                 option.Provider = StorageProvider.Minio;
-                option.Endpoint = "oss.oncemi.com:9000";  //����Ҫ����Э��
+                option.Endpoint = "oss.oncemi.com:9000";  //不需要包含协议
                 option.AccessKey = "root";
                 option.SecretKey = "Q*************************f";
                 option.IsEnableHttps = true;
@@ -53,7 +53,7 @@ namespace Sample.AspNetCore.Mvc
             });
 
             //aliyun oss
-            //��������Ϊ��aliyunoss����OSS���󴢴�������Ϣ
+            //添加名称为 'aliyunoss' 的对象存储配置信息
             services.AddStorageService("aliyunoss", option =>
             {
                 option.Provider = StorageProvider.Aliyun;
@@ -65,28 +65,28 @@ namespace Sample.AspNetCore.Mvc
             });
 
             //qcloud oss
-            //�������ļ��м��ؽڵ�Ϊ��StorageProvider����������Ϣ
+            //从配置文件加载节点为 'OSSProvider' 的配置信息
             services.AddStorageService("QCloud", "OSSProvider");
 
             //qiniu oss
-            //��������Ϊ��qiuniu����OSS���󴢴�������Ϣ
+            //添加名称为 'qiuniu' 的对象存储配置信息
             services.AddStorageService("qiuniu", option =>
             {
                 option.Provider = StorageProvider.Qiniu;
-                option.Region = "CN_East";  //֧�ֵ�ֵ��CN_East(����)/CN_South(����)/CN_North(����)/US_North(����)/Asia_South(������)
+                option.Region = "CN_East";  //支持 CN_East/CN_South/CN_North/US_North/Asia_South
                 option.AccessKey = "B****************************L";
                 option.SecretKey = "Z*************************************g";
                 option.IsEnableHttps = true;
                 option.IsEnableCache = true;
             });
 
-            //��Ϊ��OBS
-            //��������Ϊ��huaweiobs����OSS���󴢴�������Ϣ
-            //Endpoint��ѯ��https://developer.huaweicloud.com/endpoint?OBS
+            //华为 OBS
+            //添加名称为 'huaweiobs' 的对象存储配置信息
+            //Endpoint 查询：https://developer.huaweicloud.com/endpoint?OBS
             services.AddStorageService("huaweiobs", option =>
             {
                 option.Provider = StorageProvider.HuaweiCloud;
-                option.Endpoint = "obs.cn-southwest-2.myhuaweicloud.com"; //����Ҫ����Э��
+                option.Endpoint = "obs.cn-southwest-2.myhuaweicloud.com"; //不需要包含协议
                 option.Region = "cn-southwest-2";
                 option.AccessKey = "R********************6";
                 option.SecretKey = "5*************************************c";
@@ -94,26 +94,26 @@ namespace Sample.AspNetCore.Mvc
                 option.IsEnableCache = true;
             });
 
-            //�ٶ���BOS
-            //��������Ϊ��baidubos����OSS���󴢴�������Ϣ
-            //Endpoint��ѯ��https://developer.huaweicloud.com/endpoint?OBS
+            //百度 BOS
+            //添加名称为 'baidubos' 的对象存储配置信息
+            //Endpoint 查询：https://cloud.baidu.com/doc/BOS/s/8jwvyqdar
             services.AddStorageService("baidubos", option =>
             {
                 option.Provider = StorageProvider.BaiduCloud;
-                option.Endpoint = "https://su.bcebos.com"; //��Ҫ����Э��
+                option.Endpoint = "https://su.bcebos.com"; //需要包含协议
                 option.AccessKey = "A********************O";
                 option.SecretKey = "d********************d";
                 option.IsEnableHttps = true;
                 option.IsEnableCache = true;
             });
 
-            //������OOS
-            //��������Ϊ��ctyunoos����OSS���󴢴�������Ϣ
-            //Endpoint��ѯ��https://www.ctyun.cn/document/10026693/10027878
+            //天翼云 OOS
+            //添加名称为 'ctyunoos' 的对象存储配置信息
+            //Endpoint 查询：https://www.ctyun.cn/document/10026693/10027878
             services.AddStorageService("ctyunoos", option =>
             {
                 option.Provider = StorageProvider.Ctyun;
-                option.Endpoint = "oos-sdqd.ctyunapi.cn"; //����Ҫ����Э��
+                option.Endpoint = "oos-sdqd.ctyunapi.cn"; //不需要包含协议
                 option.AccessKey = "6********************6";
                 option.SecretKey = "c********************5";
                 option.IsEnableHttps = true;

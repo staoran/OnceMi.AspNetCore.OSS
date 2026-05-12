@@ -77,7 +77,7 @@
 					"response": []
 				},
 				{
-					"name": "[Qiniu]获取储存桶域名",
+					"name": "[Qiniu]获取存储桶域名",
 					"request": {
 						"method": "GET",
 						"header": [],

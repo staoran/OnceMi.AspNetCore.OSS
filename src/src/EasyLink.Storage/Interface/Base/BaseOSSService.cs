@@ -3,17 +3,35 @@ using System.Threading.Tasks;
 
 namespace EasyLink.Storage
 {
+    /// <summary>
+    /// Base implementation shared by provider services.
+    /// </summary>
     public abstract class BaseOSSService
     {
         private readonly ICacheProvider _cache;
+
+        /// <summary>
+        /// Current provider options.
+        /// </summary>
         public OSSOptions Options { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BaseOSSService"/> class.
+        /// </summary>
+        /// <param name="cache">The cache provider.</param>
+        /// <param name="options">The provider options.</param>
         public BaseOSSService(ICacheProvider cache, OSSOptions options)
         {
             this._cache = cache ?? throw new ArgumentNullException(nameof(cache));
             this.Options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
+        /// <summary>
+        /// Removes cached presigned URLs for an object.
+        /// </summary>
+        /// <param name="bucketName">The bucket name.</param>
+        /// <param name="objectName">The object name.</param>
+        /// <returns>A completed task.</returns>
         public virtual Task RemovePresignedUrlCache(string bucketName, string objectName)
         {
             if (string.IsNullOrEmpty(bucketName))

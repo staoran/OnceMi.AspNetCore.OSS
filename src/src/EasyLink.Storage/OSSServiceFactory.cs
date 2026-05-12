@@ -28,7 +28,7 @@ namespace EasyLink.Storage
 
         public IOSSService Create(string name)
         {
-            #region ������֤
+            #region Options validation
 
             if (string.IsNullOrEmpty(name))
             {

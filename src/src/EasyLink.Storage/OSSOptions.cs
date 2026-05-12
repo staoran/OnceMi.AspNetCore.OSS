@@ -2,60 +2,67 @@ using System;
 
 namespace EasyLink.Storage
 {
+    /// <summary>
+    /// 对象存储 provider 类型。
+    /// </summary>
     public enum StorageProvider
     {
         /// <summary>
-        /// ��Ч
+        /// 无效 provider。
         /// </summary>
         Invalid = 0,
 
         /// <summary>
-        /// Minio�Խ����󴢴�
+        /// Minio 或 S3 兼容对象存储。
         /// </summary>
         Minio = 1,
 
         /// <summary>
-        /// ������OSS
+        /// 阿里云 OSS。
         /// </summary>
         Aliyun = 2,
 
         /// <summary>
-        /// ��Ѷ��OSS
+        /// 腾讯云 COS。
         /// </summary>
         QCloud = 3,
 
         /// <summary>
-        /// ��ţ�� OSS
+        /// 七牛 Kodo。
         /// </summary>
         Qiniu = 4,
 
         /// <summary>
-        /// ��Ϊ�� OBS
+        /// 华为 OBS。
         /// </summary>
         HuaweiCloud = 5,
 
         /// <summary>
-        /// �ٶ��� BOS
+        /// 百度 BOS。
         /// </summary>
         BaiduCloud = 6,
+
         /// <summary>
-        /// ������ OOS
+        /// 天翼云 OOS 经典版。
         /// </summary>
         Ctyun = 7
     }
 
+    /// <summary>
+    /// 对象存储服务配置。
+    /// </summary>
     public class OSSOptions
     {
         /// <summary>
-        /// ö�٣�OOS�ṩ��
+        /// 对象存储 provider。
         /// </summary>
         public StorageProvider Provider { get; set; }
 
         /// <summary>
-        /// �ڵ�
+        /// 服务 endpoint。
         /// </summary>
         /// <remarks>
-        /// ��Ѷ���б�ʾAppId
+        /// 腾讯云 COS 中此配置项表示 AppId。
         /// </remarks>
         public string Endpoint { get; set; }
 
@@ -72,7 +79,7 @@ namespace EasyLink.Storage
         private string _region = "us-east-1";
 
         /// <summary>
-        /// ����
+        /// 存储区域。
         /// </summary>
         public string Region
         {
@@ -94,13 +101,12 @@ namespace EasyLink.Storage
         }
 
         /// <summary>
-        /// �Ƿ�����HTTPS
+        /// 是否启用 HTTPS。
         /// </summary>
         public bool IsEnableHttps { get; set; } = true;
 
         /// <summary>
-        /// �Ƿ����û��棬Ĭ�ϻ�����MemeryCache�У���ʹ������ʵ�ֵĻ������Ĭ�ϻ��棩
-        /// ��ʹ��֮ǰ��������ǰӦ�õĻ��������ܷ�ס��ǰ����
+        /// 是否启用签名 URL 缓存。未注册自定义 <see cref="ICacheProvider"/> 时，默认使用内存缓存。
         /// </summary>
         public bool IsEnableCache { get; set; } = false;
     }

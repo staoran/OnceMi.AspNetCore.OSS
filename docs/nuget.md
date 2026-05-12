@@ -1,6 +1,6 @@
 
 # EasyLink.Storage
-ASP.NET Core 对象存储扩展包族。核心包是 `EasyLink.Storage`，各 provider 包按需安装。主库目标框架为 .NET Standard 2.1，示例和测试项目以 .NET 10 作为当前构建基线。
+.NET 对象存储扩展包族。核心包是 EasyLink.Storage，各厂商实现拆为独立 provider 包，支持 Minio、阿里云 OSS、腾讯云 COS、七牛 Kodo、华为 OBS、百度 BOS、天翼 OOS 经典版。主库目标框架为 .NET Standard 2.1，示例和测试项目以 .NET 10 作为当前构建基线。
 
 ## 各厂家相关SDK文档
 - Minio: [点此查看](https://docs.min.io/docs/dotnet-client-api-reference.html "点此查看")
@@ -13,7 +13,7 @@ ASP.NET Core 对象存储扩展包族。核心包是 `EasyLink.Storage`，各 pr
 
 ## 已知问题
 1. Minio通过Nginx发反向代理后直接通过域名（不加端口）调用存在问题，应该是Minio本身问题，有兴趣的可以自行测试研究，具体信息我已经发布在Issue中。
-2. 腾讯云`PutObjectAsync`流式上传接口，有非常低的概率会抛“储存桶不存在的异常”，应该是腾讯云自身的原因，具体原因未知。
+2. 腾讯云 `PutObjectAsync` 流式上传接口，有非常低的概率会抛“存储桶不存在的异常”，应该是腾讯云自身的原因，具体原因未知。
 
 ## 构建与发布准备
 - 当前仓库使用.NET 10 SDK执行`restore`、`build`、`test`和`pack`。
@@ -29,14 +29,13 @@ Cmd install：
 dotnet add package EasyLink.Storage
 dotnet add package EasyLink.Storage.Minio
 ```
-Nuget： [![](https://img.shields.io/nuget/v/EasyLink.Storage.svg)](https://www.nuget.org/packages/EasyLink.Storage)
+NuGet： [![](https://img.shields.io/nuget/v/EasyLink.Storage.svg)](https://www.nuget.org/packages/EasyLink.Storage)
 
-2、在`Startup.cs`中配置
-You need to configure OSSService in your Startup.cs：
+2、在 `Startup.cs` 中注册 provider 并配置 StorageService：
 
 ```csharp
 //default minio
-//添加默认对象储存配置信息
+//添加默认对象存储配置信息
 services.AddMinioStorageProvider();
 services.AddStorageService(option =>
 {
@@ -49,7 +48,7 @@ services.AddStorageService(option =>
 });
 
 //aliyun oss
-//添加名称为‘aliyunoss’的OSS对象储存配置信息
+//添加名称为 'aliyunoss' 的对象存储配置信息
 services.AddStorageService("aliyunoss", option =>
  {
      option.Provider = StorageProvider.Aliyun;
@@ -60,18 +59,18 @@ services.AddStorageService("aliyunoss", option =>
  });
 
 //qcloud oss
-//也可以从配置文件中加载节点为‘OSSProvider’的配置信息
+//也可以从配置文件中加载节点为 'OSSProvider' 的配置信息
 services.AddTencentCOSStorageProvider();
 services.AddStorageService("QCloud", "OSSProvider");
 ```
 
-可注入多个OSSService，不同的Service用名称来区分。需要注意的是，腾讯云COS中配置节点Endpoint表示AppId。
+可注册多个命名 StorageService，不同的服务用名称来区分。需要注意的是，腾讯云 COS 中配置节点 `Endpoint` 表示 AppId。
 
 appsettings.json配置文件实例：
 ```csharp
 {
   "OSSProvider": {
-    "Provider": "QCloud", //枚举值支持：Minio/Aliyun/QCloud
+    "Provider": "QCloud", //枚举值支持：Minio/Aliyun/QCloud/Qiniu/HuaweiCloud/BaiduCloud/Ctyun
     "Endpoint": "你的AppId", //腾讯云中表示AppId
     "Region": "ap-chengdu",  //地域
     "AccessKey": "A****************************z",
@@ -105,7 +104,7 @@ public class HomeController : Controller
 
 ```csharp
 /// <summary>
-/// 获取IOSSServiceFactory，根据名称创建对应的OSS服务
+/// 获取 IOSSServiceFactory，根据名称创建对应的对象存储服务
 /// </summary>
 public class QCloudController : Controller
 {
@@ -142,26 +141,25 @@ public async Task<IActionResult> ListBuckets()
 
 |  名称 |  类型  | 说明  | 案例  |  备注 |
 | :------------ |:------------ | :------------ | :------------ | :------------ |
-| Provider  | 枚举  | OSS提供者  |  Minio | 允许值：Minio/Aliyun/QCloud/Qiniu/HuaweiCloud/BaiduCloud/Ctyun |
+| Provider  | 枚举  | 对象存储提供者  |  Minio | 允许值：Minio/Aliyun/QCloud/Qiniu/HuaweiCloud/BaiduCloud/Ctyun |
 | Endpoint  | string  | 节点  | oss-cn-hangzhou.aliyuncs.com  |  在腾讯云OSS中表示AppId  |
 | AccessKey  | string  | AccessKey  | F...............s  |    |
 | SecretKey  | string  | SecretKey  | v...............d  |    |
 | Region  | string  | 地域  | ap-chengdu  |    |
 | IsEnableHttps  | bool  | 是否启用HTTPS  |  true  |  建议启用  |
-| IsEnableCache  | bool  | 是否启用缓存  |  true  |  启用后将缓存签名URL，以减少请求次数  |
+| IsEnableCache  | bool  | 是否启用缓存  |  true  |  启用后将缓存签名 URL，以减少请求次数  |
 
-## Dependencies
+## 包与依赖
 
-1. Aliyun.OSS.SDK.NetCore
-2. BceSdkDotNetCore
-3. Microsoft.Extensions.Caching.Memory
-4. Microsoft.Extensions.Configuration.Binder
-5. Microsoft.Extensions.DependencyInjection
-6. Microsoft.Extensions.Options
-7. Tencent.QCloud.Cos.Sdk
-8. Minio
-9. Qiniu
+- `EasyLink.Storage`：核心抽象、DI 注册、配置模型、公共模型、缓存抽象和默认内存缓存，不直接依赖任何厂商 SDK。
+- `EasyLink.Storage.Minio`：Minio / S3 兼容对象存储 provider，依赖 `Minio`。
+- `EasyLink.Storage.AliyunOSS`：阿里云 OSS provider，依赖 `Aliyun.OSS.SDK.NetCore`。
+- `EasyLink.Storage.TencentCOS`：腾讯云 COS provider，依赖 `Tencent.QCloud.Cos.Sdk`。
+- `EasyLink.Storage.QiniuKodo`：七牛 Kodo provider，依赖 `Qiniu`。
+- `EasyLink.Storage.HuaweiOBS`：华为 OBS provider，使用仓库内嵌 OBS SDK 适配代码。
+- `EasyLink.Storage.BaiduBOS`：百度 BOS provider，依赖 `BceSdkDotNetCore`。
+- `EasyLink.Storage.CtyunOOS`：天翼云 OOS 经典版 provider，使用仓库内置 HTTP/签名适配代码。
 
 ## To do list
-1. 修改签名URL过期策略为滑动过期策略
+1. 修改签名 URL 过期策略为滑动过期策略
 2. 文件分页加载
