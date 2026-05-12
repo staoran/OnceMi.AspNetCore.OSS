@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
-    <Company>OnceMi</Company>
-    <Authors>OnceMi contributors</Authors>
+    <Company>TAORAN</Company>
+    <Authors>EasyLink contributors</Authors>
     <Version>2.0.0</Version>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
