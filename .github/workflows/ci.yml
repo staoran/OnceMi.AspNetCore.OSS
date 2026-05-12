@@ -9,11 +9,48 @@ on:
       publish_to_nuget:
         description: "Publish packages to NuGet after build, test, and pack"
         required: false
-        default: "false"
-        type: choice
-        options:
-          - "false"
-          - "true"
+        default: false
+        type: boolean
+      package_core:
+        description: "Package EasyLink.Storage"
+        required: false
+        default: true
+        type: boolean
+      package_minio:
+        description: "Package EasyLink.Storage.Minio"
+        required: false
+        default: true
+        type: boolean
+      package_aliyunoss:
+        description: "Package EasyLink.Storage.AliyunOSS"
+        required: false
+        default: true
+        type: boolean
+      package_tencentcos:
+        description: "Package EasyLink.Storage.TencentCOS"
+        required: false
+        default: true
+        type: boolean
+      package_qiniukodo:
+        description: "Package EasyLink.Storage.QiniuKodo"
+        required: false
+        default: true
+        type: boolean
+      package_huaweiobs:
+        description: "Package EasyLink.Storage.HuaweiOBS"
+        required: false
+        default: true
+        type: boolean
+      package_baidubos:
+        description: "Package EasyLink.Storage.BaiduBOS"
+        required: false
+        default: true
+        type: boolean
+      package_ctyunoos:
+        description: "Package EasyLink.Storage.CtyunOOS"
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: read
@@ -59,8 +96,44 @@ jobs:
             exit 1
           fi
 
-      - name: Pack
-        run: dotnet pack ${{ env.PACKAGE_PROJECT_PATH }} --configuration Release --no-build --output ${{ env.PACKAGE_OUTPUT }}
+      - name: Pack NuGet packages
+        shell: bash
+        run: |
+          projects=()
+
+          if [[ "${{ github.event_name }}" == "push" || "${{ inputs.package_core }}" == "true" ]]; then
+            projects+=(src/src/EasyLink.Storage/EasyLink.Storage.csproj)
+          fi
+          if [[ "${{ github.event_name }}" == "push" || "${{ inputs.package_minio }}" == "true" ]]; then
+            projects+=(src/src/EasyLink.Storage.Minio/EasyLink.Storage.Minio.csproj)
+          fi
+          if [[ "${{ github.event_name }}" == "push" || "${{ inputs.package_aliyunoss }}" == "true" ]]; then
+            projects+=(src/src/EasyLink.Storage.AliyunOSS/EasyLink.Storage.AliyunOSS.csproj)
+          fi
+          if [[ "${{ github.event_name }}" == "push" || "${{ inputs.package_tencentcos }}" == "true" ]]; then
+            projects+=(src/src/EasyLink.Storage.TencentCOS/EasyLink.Storage.TencentCOS.csproj)
+          fi
+          if [[ "${{ github.event_name }}" == "push" || "${{ inputs.package_qiniukodo }}" == "true" ]]; then
+            projects+=(src/src/EasyLink.Storage.QiniuKodo/EasyLink.Storage.QiniuKodo.csproj)
+          fi
+          if [[ "${{ github.event_name }}" == "push" || "${{ inputs.package_huaweiobs }}" == "true" ]]; then
+            projects+=(src/src/EasyLink.Storage.HuaweiOBS/EasyLink.Storage.HuaweiOBS.csproj)
+          fi
+          if [[ "${{ github.event_name }}" == "push" || "${{ inputs.package_baidubos }}" == "true" ]]; then
+            projects+=(src/src/EasyLink.Storage.BaiduBOS/EasyLink.Storage.BaiduBOS.csproj)
+          fi
+          if [[ "${{ github.event_name }}" == "push" || "${{ inputs.package_ctyunoos }}" == "true" ]]; then
+            projects+=(src/src/EasyLink.Storage.CtyunOOS/EasyLink.Storage.CtyunOOS.csproj)
+          fi
+
+          if [ ${#projects[@]} -eq 0 ]; then
+            echo "Select at least one package to pack." >&2
+            exit 1
+          fi
+
+          for project in "${projects[@]}"; do
+            dotnet pack "$project" --configuration Release --no-build --no-restore --output "${{ env.PACKAGE_OUTPUT }}"
+          done
 
       - name: Upload package artifacts
         uses: actions/upload-artifact@v4
@@ -75,7 +148,7 @@ jobs:
     name: Publish to NuGet
     runs-on: ubuntu-latest
     needs: build-test-pack
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget == 'true')
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget)
     environment: nuget-production
     permissions:
       contents: read

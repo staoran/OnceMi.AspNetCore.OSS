@@ -95,8 +95,8 @@ Minio 7 的类型和返回值有变化，主要影响 `src/src/EasyLink.Storage/
 
 当前仓库已经有两个 workflow：
 
-- `.github/workflows/ci.yml`：主发布入口。自动触发只响应 `v*.*.*` tag；手动运行时会执行构建、测试、打包，选择 `publish_to_nuget=true` 时会继续发布到 NuGet。
-- `.github/workflows/publish-nuget.yml`：手动备用发布入口，只保留 `workflow_dispatch`，不再响应 tag，避免 tag 发布时重复推包。
+- `.github/workflows/ci.yml`：主发布入口。自动触发只响应 `v*.*.*` tag；手动运行时会执行构建、测试、打包，选择 `publish_to_nuget` 并勾选包列表后，会按勾选项发布到 NuGet。
+- `.github/workflows/publish-nuget.yml`：手动备用发布入口，只保留 `workflow_dispatch`，可勾选需要发布的包，不再响应 tag，避免 tag 发布时重复推包。
 
 要真正自动发包，需要先拥有目标 NuGet 包的发布权限。如果只是 fork 原仓库源码，没有原 `OnceMi.AspNetCore.OSS` 包权限，应选择新的 `PackageId` 发布，或先获得原包 owner 授权。
 
@@ -141,11 +141,18 @@ on:
     inputs:
       publish_to_nuget:
         description: "Publish packages to NuGet after build, test, and pack"
-        default: "false"
-        type: choice
-        options:
-          - "false"
-          - "true"
+        default: false
+        type: boolean
+      package_core:
+        description: "Package EasyLink.Storage"
+        default: true
+        type: boolean
+      package_minio:
+        description: "Package EasyLink.Storage.Minio"
+        default: true
+        type: boolean
+      # package_aliyunoss / package_tencentcos / package_qiniukodo /
+      # package_huaweiobs / package_baidubos / package_ctyunoos 同样为 boolean
 
 permissions:
   contents: read
@@ -165,7 +172,7 @@ jobs:
     name: Publish to NuGet
     runs-on: ubuntu-latest
     needs: build-test-pack
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget == 'true')
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget)
     environment: nuget-production
     permissions:
       contents: read
@@ -190,7 +197,7 @@ jobs:
         run: dotnet nuget push "<package>.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source "${{ env.NUGET_SOURCE }}" --skip-duplicate
 ```
 
-实际 workflow 会遍历 `artifacts/packages/*.nupkg` 并逐个推送。`NUGET_USER` 优先读取 GitHub repository 或 environment variable；未配置时兜底使用 `taoran`。
+tag 自动触发时 workflow 会打包并推送核心包和全部 provider 包。手动触发时，workflow 会按页面上勾选的包列表打包；publish job 再遍历 `artifacts/packages/*.nupkg` 并逐个推送。`NUGET_USER` 优先读取 GitHub repository 或 environment variable；未配置时兜底使用 `taoran`。
 
 ### 3. 配置 GitHub environment
 
@@ -217,11 +224,11 @@ git tag v1.3.0
 git push origin v1.3.0
 ```
 
-tag push 后，`ci.yml` 会自动运行。workflow 会先 restore/build/test/pack，再通过 Trusted Publishing 登录 NuGet.org，最后推送 `.nupkg`。
+tag push 后，`ci.yml` 会自动运行。workflow 会先 restore/build/test，再依次 pack 核心包与各 provider 包，通过 Trusted Publishing 登录 NuGet.org，最后推送 `.nupkg`。
 
 tag 版本必须与 `.csproj` 中的 `<Version>` 一致。例如 `<Version>1.3.0</Version>` 只能用 `v1.3.0` tag 发布；不一致时 workflow 会失败并阻止发布。
 
-手动发布时，在 GitHub Actions 里运行 `CI` workflow，并把 `publish_to_nuget` 选择为 `true`。这会走同一套 restore/build/test/pack/publish 链路。备用入口是手动运行 `Publish NuGet` workflow。
+手动发布时，在 GitHub Actions 里运行 `CI` workflow，勾选 `publish_to_nuget`，并在包列表中保留需要发布的包。这会走同一套 restore/build/test/pack/publish 链路，但只发布勾选的包。备用入口是手动运行 `Publish NuGet` workflow，并同样勾选需要发布的包。
 
 ### 5. 首次发布前检查
 
@@ -239,9 +246,9 @@ tag 版本必须与 `.csproj` 中的 `<Version>` 一致。例如 `<Version>1.3.0
 当前 `.github/workflows/ci.yml` 是主发布入口：
 
 - 自动触发只响应 `v*.*.*` tag，不响应普通分支 push 或 pull request。
-- 自动 tag 触发时执行 restore/build/test/pack，并在 tag 版本匹配包版本后发布 NuGet。
+- 自动 tag 触发时执行 restore/build/test，再依次 pack 核心包与各 provider 包，并在 tag 版本匹配包版本后发布 NuGet。
 - 上传 package artifacts。
-- 手动触发时默认只执行 restore/build/test/pack；选择 `publish_to_nuget=true` 时执行 `dotnet nuget push`。
+- 手动触发时默认只执行 restore/build/test/pack；勾选 `publish_to_nuget` 时执行 `dotnet nuget push`，并且只推送手动包列表中勾选的包。
 
 当前 `.github/workflows/publish-nuget.yml` 是手动备用发布入口。两个发布入口只有在以下条件都满足时才能成功：
 
