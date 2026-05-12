@@ -2,7 +2,7 @@
 
 本文记录 1 号任务中的 NuGet 依赖升级结果、由升级引发的代码改动，以及后续具备 NuGet 包权限后如何开启自动发包。
 
-更新时间：2026-05-11
+更新时间：2026-05-12
 
 ## 升级结论
 
@@ -151,7 +151,7 @@ on:
         description: "Package EasyLink.Storage.Minio"
         default: true
         type: boolean
-      # package_aliyunoss / package_tencentcos / package_qiniukodo /
+      # package_aliyunoss / package_aliyunossv2 / package_tencentcos / package_qiniukodo /
       # package_huaweiobs / package_baidubos / package_ctyunoos 同样为 boolean
 
 permissions:

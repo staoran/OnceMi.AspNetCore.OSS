@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EasyLink.Storage\EasyLink.Storage.csproj" />
+    <ProjectReference Include="..\EasyLink.Storage.AliyunOSSV2\EasyLink.Storage.AliyunOSSV2.csproj" />
   </ItemGroup>
 
 </Project>

@@ -18,6 +18,11 @@ on:
         required: false
         default: true
         type: boolean
+      package_aliyunossv2:
+        description: "Package EasyLink.Storage.AliyunOSSV2"
+        required: false
+        default: true
+        type: boolean
       package_tencentcos:
         description: "Package EasyLink.Storage.TencentCOS"
         required: false
@@ -90,6 +95,9 @@ jobs:
           fi
           if [[ "${{ inputs.package_aliyunoss }}" == "true" ]]; then
             projects+=(src/src/EasyLink.Storage.AliyunOSS/EasyLink.Storage.AliyunOSS.csproj)
+          fi
+          if [[ "${{ inputs.package_aliyunossv2 }}" == "true" ]]; then
+            projects+=(src/src/EasyLink.Storage.AliyunOSSV2/EasyLink.Storage.AliyunOSSV2.csproj)
           fi
           if [[ "${{ inputs.package_tencentcos }}" == "true" ]]; then
             projects+=(src/src/EasyLink.Storage.TencentCOS/EasyLink.Storage.TencentCOS.csproj)

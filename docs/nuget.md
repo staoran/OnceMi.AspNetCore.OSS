@@ -1,10 +1,11 @@
 
 # EasyLink.Storage
-.NET 对象存储扩展包族。核心包是 EasyLink.Storage，各厂商实现拆为独立 provider 包，支持 Minio、阿里云 OSS、腾讯云 COS、七牛 Kodo、华为 OBS、百度 BOS、天翼 OOS 经典版。主库目标框架为 .NET Standard 2.1，示例和测试项目以 .NET 10 作为当前构建基线。
+.NET 对象存储扩展包族。核心包是 EasyLink.Storage，各厂商实现拆为独立 provider 包，支持 Minio、阿里云 OSS V1/V2、腾讯云 COS、七牛 Kodo、华为 OBS、百度 BOS、天翼 OOS 经典版。主库目标框架为 .NET Standard 2.1，示例和测试项目以 .NET 10 作为当前构建基线。
 
 ## 各厂家相关SDK文档
 - Minio: [点此查看](https://docs.min.io/docs/dotnet-client-api-reference.html "点此查看")
-- Aliyun: [点此查看](https://help.aliyun.com/document_detail/32085.html "点此查看")
+- Aliyun OSS V1: [点此查看](https://help.aliyun.com/document_detail/32085.html "点此查看")
+- Aliyun OSS V2: [点此查看](https://help.aliyun.com/zh/oss/developer-reference/oss-sdk-for-c-2-0/ "点此查看")
 - QCloud: [点此查看](https://cloud.tencent.com/document/product/436/32819 "点此查看")
 - 七牛云: [点此查看](https://developer.qiniu.com/kodo/1237/csharp "点此查看")
 - HuaweiOBS：[点此查看](https://support.huaweicloud.com/sdk-dotnet-devg-obs/obs_25_0001.html "点此查看")
@@ -49,10 +50,24 @@ services.AddStorageService(option =>
 
 //aliyun oss
 //添加名称为 'aliyunoss' 的对象存储配置信息
+services.AddAliyunStorageProvider();
 services.AddStorageService("aliyunoss", option =>
  {
      option.Provider = StorageProvider.Aliyun;
      option.Endpoint = "oss-cn-hangzhou.aliyuncs.com";
+     option.AccessKey = "L*******************U";
+     option.SecretKey = "5*******************************T";
+     option.IsEnableCache = true;
+ });
+
+//aliyun oss v2
+//添加名称为 'aliyunoss-v2' 的对象存储配置信息
+services.AddAliyunOSSV2StorageProvider();
+services.AddStorageService("aliyunoss-v2", option =>
+ {
+     option.Provider = StorageProvider.AliyunV2;
+     option.Endpoint = "oss-cn-hangzhou.aliyuncs.com";
+     option.Region = "cn-hangzhou";
      option.AccessKey = "L*******************U";
      option.SecretKey = "5*******************************T";
      option.IsEnableCache = true;
@@ -70,7 +85,7 @@ appsettings.json配置文件实例：
 ```csharp
 {
   "OSSProvider": {
-    "Provider": "QCloud", //枚举值支持：Minio/Aliyun/QCloud/Qiniu/HuaweiCloud/BaiduCloud/Ctyun
+    "Provider": "QCloud", //枚举值支持：Minio/Aliyun/AliyunV2/QCloud/Qiniu/HuaweiCloud/BaiduCloud/Ctyun
     "Endpoint": "你的AppId", //腾讯云中表示AppId
     "Region": "ap-chengdu",  //地域
     "AccessKey": "A****************************z",
@@ -153,7 +168,8 @@ public async Task<IActionResult> ListBuckets()
 
 - `EasyLink.Storage`：核心抽象、DI 注册、配置模型、公共模型、缓存抽象和默认内存缓存，不直接依赖任何厂商 SDK。
 - `EasyLink.Storage.Minio`：Minio / S3 兼容对象存储 provider，依赖 `Minio`。
-- `EasyLink.Storage.AliyunOSS`：阿里云 OSS provider，依赖 `Aliyun.OSS.SDK.NetCore`。
+- `EasyLink.Storage.AliyunOSS`：阿里云 OSS V1 provider，依赖 `Aliyun.OSS.SDK.NetCore`。
+- `EasyLink.Storage.AliyunOSSV2`：阿里云 OSS V2 provider，依赖 `AlibabaCloud.OSS.V2`；不包含旧 V1 provider 的 CORS 扩展接口。
 - `EasyLink.Storage.TencentCOS`：腾讯云 COS provider，依赖 `Tencent.QCloud.Cos.Sdk`。
 - `EasyLink.Storage.QiniuKodo`：七牛 Kodo provider，依赖 `Qiniu`。
 - `EasyLink.Storage.HuaweiOBS`：华为 OBS provider，使用仓库内嵌 OBS SDK 适配代码。

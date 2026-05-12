@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <PackageId>EasyLink.Storage.AliyunOSSV2</PackageId>
+    <AssemblyName>EasyLink.Storage.AliyunOSSV2</AssemblyName>
+    <RootNamespace>EasyLink.Storage.AliyunOSSV2</RootNamespace>
+    <Title>EasyLink.Storage.AliyunOSSV2</Title>
+    <Description>EasyLink.Storage 的阿里云 OSS V2 provider 包，基于 AlibabaCloud.OSS.V2 提供 Aliyun OSS 对象存储实现。</Description>
+    <PackageTags>easylink;storage;object-storage;oss;provider;aliyun;aliyun-oss;aliyun-oss-v2</PackageTags>
+    <PackageReleaseNotes>2.0.0: Adds an Aliyun OSS V2 provider package based on AlibabaCloud.OSS.V2. Install with EasyLink.Storage to enable Aliyun OSS V2 object storage.</PackageReleaseNotes>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EasyLink.Storage\EasyLink.Storage.csproj" />
+    <PackageReference Include="AlibabaCloud.OSS.V2" Version="0.1.2" />
+  </ItemGroup>
+</Project>

@@ -45,7 +45,12 @@ namespace EasyLink.Storage
         /// <summary>
         /// 天翼云 OOS 经典版。
         /// </summary>
-        Ctyun = 7
+        Ctyun = 7,
+
+        /// <summary>
+        /// 阿里云 OSS V2 SDK。
+        /// </summary>
+        AliyunV2 = 8
     }
 
     /// <summary>

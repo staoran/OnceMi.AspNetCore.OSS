@@ -44,18 +44,19 @@ namespace EasyLink.Storage
             if (options.Provider == StorageProvider.Invalid)
                 throw new ArgumentNullException(nameof(options.Provider));
             if (string.IsNullOrEmpty(options.Endpoint) && options.Provider != StorageProvider.Qiniu)
-                throw new ArgumentNullException(nameof(options.Endpoint), "When your provider is Minio/QCloud/Aliyun/HuaweiCloud, endpoint can not null.");
+                throw new ArgumentNullException(nameof(options.Endpoint), "When your provider is Minio/QCloud/Aliyun/AliyunV2/HuaweiCloud, endpoint can not null.");
             if (string.IsNullOrEmpty(options.SecretKey))
                 throw new ArgumentNullException(nameof(options.SecretKey), "SecretKey can not null.");
             if (string.IsNullOrEmpty(options.AccessKey))
                 throw new ArgumentNullException(nameof(options.AccessKey), "AccessKey can not null.");
             if ((options.Provider == StorageProvider.Minio
+                || options.Provider == StorageProvider.AliyunV2
                 || options.Provider == StorageProvider.QCloud
                 || options.Provider == StorageProvider.Qiniu
                 || options.Provider == StorageProvider.HuaweiCloud)
                 && string.IsNullOrEmpty(options.Region))
             {
-                throw new ArgumentNullException(nameof(options.Region), "When your provider is Minio/QCloud/Qiniu/HuaweiCloud, region can not null.");
+                throw new ArgumentNullException(nameof(options.Region), "When your provider is Minio/AliyunV2/QCloud/Qiniu/HuaweiCloud, region can not null.");
             }
 
             #endregion
@@ -82,6 +83,7 @@ namespace EasyLink.Storage
             {
                 StorageProvider.Minio => "EasyLink.Storage.Minio",
                 StorageProvider.Aliyun => "EasyLink.Storage.AliyunOSS",
+                StorageProvider.AliyunV2 => "EasyLink.Storage.AliyunOSSV2",
                 StorageProvider.QCloud => "EasyLink.Storage.TencentCOS",
                 StorageProvider.Qiniu => "EasyLink.Storage.QiniuKodo",
                 StorageProvider.HuaweiCloud => "EasyLink.Storage.HuaweiOBS",
